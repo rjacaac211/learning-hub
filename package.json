@@ -1,0 +1,13 @@
+{
+  "name": "learning-hub-monorepo",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Learning Hub - Full-stack app (server + web) for Raspberry Pi and Windows dev",
+  "scripts": {
+    "dev": "concurrently \"npm:dev --prefix server\" \"npm:dev --prefix web\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.0"
+  }
+}
+
