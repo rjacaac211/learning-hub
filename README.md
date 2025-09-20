@@ -10,7 +10,7 @@ Dev quick start (Windows):
 1) Server
    - `cd server`
    - `copy .env.example .env` (PowerShell) or `cp .env.example .env`
-   - Edit `.env` if needed. By default `CONTENT_DIR=./content`. Create `server/content/english|math|science` and add files.
+   - Edit `.env` if needed. By default `CONTENT_DIR=./content`. The repo includes `server/content/english|math|science`; add files there.
 2) Install dependencies
    - `npm install --prefix server`
    - `npm install --prefix web`
