@@ -37,7 +37,18 @@ export default function Library() {
     return nodes.dirs.filter(d => d.name.toLowerCase().includes(q))
   }, [nodes, query])
 
-  const isEmpty = !loading && !error && filteredDirs.length === 0
+  const filteredFiles = useMemo(() => {
+    const q = query.trim().toLowerCase()
+    const allowed = nodes.files.filter(f => {
+      const mime = String(f.mime || '').toLowerCase()
+      if (f.name.toLowerCase().startsWith('readme')) return false
+      return mime.includes('pdf') || mime.startsWith('video/')
+    })
+    if (!q) return allowed
+    return allowed.filter(f => f.name.toLowerCase().includes(q))
+  }, [nodes, query])
+
+  const isEmpty = !loading && !error && filteredDirs.length === 0 && filteredFiles.length === 0
 
   const segments = currentPath.split('/').filter(Boolean)
   const isRoot = segments.length === 0
@@ -110,6 +121,17 @@ export default function Library() {
               </Card>
             ))}
           </div>
+          {filteredFiles.length > 0 && (
+            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredFiles.map(f => (
+                <a key={f.path} href={`/files${f.path}`} target="_blank" rel="noreferrer">
+                  <Card interactive className="cursor-pointer">
+                    <CardTitle className="truncate">{f.name}</CardTitle>
+                  </Card>
+                </a>
+              ))}
+            </div>
+          )}
         </>
       )}
     </div>
