@@ -174,6 +174,14 @@ function isLikeVideoLessons(part) {
   return s >= 0.7;
 }
 
+function isLikeQuarter(part) {
+  const p = normalize(part);
+  if (!p) return false;
+  if (/^quarter\s*\d+$/i.test(part)) return true;
+  if (/^q[1-4]$/i.test(part)) return true;
+  return false;
+}
+
 async function* walkDir(dir) {
   const dirents = await fs.promises.readdir(dir, { withFileTypes: true });
   for (const d of dirents) {
@@ -258,7 +266,8 @@ async function main() {
     }
 
     // Remove "Learning Materials" segment if present; we want the subject path
-    const subjectParts = dirParts.filter(p => !isLikeLearningMaterials(p));
+    // Also drop quarter folders (Quarter 1..4, Q1..Q4) which live under Learning Materials
+    const subjectParts = dirParts.filter(p => !isLikeLearningMaterials(p) && !isLikeQuarter(p));
 
     // Greedy mapping along canonical tree
     let node = tree;

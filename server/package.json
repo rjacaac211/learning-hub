@@ -8,7 +8,8 @@
     "dev": "nodemon index.js",
     "start": "node index.js",
     "sync-structure": "node scripts/sync-structure.js",
-    "import-pdfs": "node scripts/import-pdfs.js"
+    "import-pdfs": "node scripts/import-pdfs.js",
+    "fix-jhs-quarters": "node scripts/fix-jhs-quarters.js"
   },
   "dependencies": {
     "dotenv": "^16.4.5",
