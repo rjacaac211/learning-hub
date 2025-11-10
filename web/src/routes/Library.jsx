@@ -88,7 +88,7 @@ export default function Library() {
           <input
             type="search"
             placeholder="Search in this folder..."
-            className="w-full sm:w-80 px-3 py-2 rounded-md bg-white/60 backdrop-blur-sm border border-white/0 shadow-sm focus-visible:ring-2 focus-visible:ring-accent"
+            className="w-full sm:w-[28rem] lg:w-[36rem] px-3 py-2 rounded-md bg-white/60 backdrop-blur-sm border border-white/0 shadow-sm focus-visible:ring-2 focus-visible:ring-accent"
             value={query}
             onChange={e => setQuery(e.target.value)}
           />
@@ -123,13 +123,25 @@ export default function Library() {
           </div>
           {filteredFiles.length > 0 && (
             <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredFiles.map(f => (
-                <a key={f.path} href={`/files${f.path}`} target="_blank" rel="noreferrer">
-                  <Card interactive className="cursor-pointer">
-                    <CardTitle className="truncate">{f.name}</CardTitle>
-                  </Card>
-                </a>
-              ))}
+              {filteredFiles.map(f => {
+                const isPdf = String(f.mime || '').toLowerCase().includes('pdf')
+                if (isPdf) {
+                  return (
+                    <div key={f.path} onClick={() => navigate(`/pdf${f.path}`)}>
+                      <Card interactive className="cursor-pointer">
+                        <CardTitle className="truncate">{f.name}</CardTitle>
+                      </Card>
+                    </div>
+                  )
+                }
+                return (
+                  <a key={f.path} href={`/files${f.path}`} target="_blank" rel="noreferrer">
+                    <Card interactive className="cursor-pointer">
+                      <CardTitle className="truncate">{f.name}</CardTitle>
+                    </Card>
+                  </a>
+                )
+              })}
             </div>
           )}
         </>
