@@ -11,7 +11,7 @@ export default function App() {
   }, [location])
 
   return (
-    <Shell showTopNav={location.pathname !== '/'}>
+    <Shell showTopNav={location.pathname !== '/' && !location.pathname.startsWith('/library')}>
       <Outlet />
     </Shell>
   )
