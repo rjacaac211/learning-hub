@@ -4,8 +4,8 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import './index.css'
 import App from './routes/App'
 import Landing from './routes/Landing'
-import Categories from './routes/Categories'
-import Category from './routes/Category'
+import Signin from './routes/Signin'
+import Browser from './routes/Browser'
 
 const router = createBrowserRouter([
   {
@@ -13,8 +13,8 @@ const router = createBrowserRouter([
     element: <App />,
     children: [
       { index: true, element: <Landing /> },
-      { path: 'categories', element: <Categories /> },
-      { path: 'category/:slug', element: <Category /> }
+      { path: 'signin', element: <Signin /> },
+      { path: 'browser/*', element: <Browser /> }
     ]
   }
 ])

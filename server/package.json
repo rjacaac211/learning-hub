@@ -6,7 +6,8 @@
   "license": "MIT",
   "scripts": {
     "dev": "nodemon index.js",
-    "start": "node index.js"
+    "start": "node index.js",
+    "sync-structure": "node scripts/sync-structure.js"
   },
   "dependencies": {
     "dotenv": "^16.4.5",

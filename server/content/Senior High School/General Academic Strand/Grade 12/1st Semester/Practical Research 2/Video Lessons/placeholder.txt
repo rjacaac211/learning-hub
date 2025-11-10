@@ -1,0 +1,2 @@
+Place video lesson files in this folder.
+This is a placeholder file.

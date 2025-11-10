@@ -9,8 +9,8 @@ Setup (Windows dev)
 
 Routes
 - `/` – Landing (Welcome + Enter button)
-- `/categories` – Shows cards for English, Math, Science
-- `/category/:slug` – Lists files for the chosen category, with search and open link
+- `/signin` – Choose Student or Admin (Admin requires password via backend)
+- `/browser/*` – Tree browser over the content folders, with per-folder search
 
 Build & preview
 - `npm run build`

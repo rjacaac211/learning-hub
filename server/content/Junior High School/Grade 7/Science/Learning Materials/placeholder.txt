@@ -1,0 +1,2 @@
+Place PDF learning materials in this folder.
+This is a placeholder file.
