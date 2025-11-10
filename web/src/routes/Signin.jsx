@@ -75,7 +75,7 @@ export default function Signin() {
           <button
             type="submit"
             disabled={loading}
-            className="inline-flex items-center justify-center h-10 px-6 rounded-md bg-accent text-fg-inverted hover:bg-accent-hover disabled:opacity-60"
+            className="inline-flex items-center justify-center h-10 px-6 rounded-md bg-gradient-to-r from-accent to-sky-500 text-fg-inverted hover:opacity-90 disabled:opacity-60 transition"
           >
             {loading ? 'Signing in...' : 'Continue'}
           </button>

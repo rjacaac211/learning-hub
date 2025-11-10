@@ -3,9 +3,14 @@ import TopNav from './TopNav'
 
 export default function Shell({ children, showTopNav = true }) {
   return (
-    <div className="min-h-screen bg-bg">
+    <div className="min-h-screen relative">
+      {/* subtle global blobs */}
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute -top-24 -left-24 w-[520px] h-[520px] bg-gradient-to-br from-accent/15 to-sky-400/15 blur-3xl rounded-full" />
+        <div className="absolute -bottom-24 -right-24 w-[520px] h-[520px] bg-gradient-to-tr from-purple-500/12 to-accent/12 blur-3xl rounded-full" />
+      </div>
       {showTopNav && <TopNav />}
-      <main className="container px-6 py-8">
+      <main className="relative container px-6 py-8">
         {children}
       </main>
     </div>

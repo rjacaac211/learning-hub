@@ -8,7 +8,13 @@ html, body, #root { height: 100%; }
 
 @layer base {
   html { -webkit-font-smoothing: antialiased; }
-  body { @apply bg-bg text-fg font-sans; }
+  body { 
+    @apply text-fg font-sans;
+    background:
+      radial-gradient(1200px 600px at 0% -10%, hsla(221,83%,53%,0.08), transparent 40%),
+      radial-gradient(1200px 600px at 100% 110%, hsla(199,89%,48%,0.08), transparent 40%),
+      theme('colors.bg.DEFAULT');
+  }
   h1 { @apply text-3xl md:text-4xl font-semibold tracking-tight; }
   h2 { @apply text-2xl md:text-3xl font-semibold tracking-tight; }
   h3 { @apply text-xl md:text-2xl font-medium; }

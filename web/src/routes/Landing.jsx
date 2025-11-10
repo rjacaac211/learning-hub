@@ -35,16 +35,22 @@ export default function Landing() {
     }
   }
   return (
-    <section className="min-h-[calc(100vh-80px)] flex items-center justify-center">
-      <div className="text-center px-4">
-        <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight">Learning Hub</h1>
+    <section className="relative min-h-[calc(100vh-80px)] flex items-center justify-center overflow-hidden">
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute -top-24 -left-24 w-[520px] h-[520px] bg-gradient-to-br from-accent/25 to-sky-400/25 blur-3xl rounded-full" />
+        <div className="absolute -bottom-24 -right-24 w-[520px] h-[520px] bg-gradient-to-tr from-purple-500/20 to-accent/20 blur-3xl rounded-full" />
+      </div>
+      <div className="relative text-center px-4">
+        <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight bg-gradient-to-r from-accent to-sky-500 bg-clip-text text-transparent">
+          Learning Hub
+        </h1>
         <p className="mt-4 text-fg-muted max-w-xl mx-auto">Choose your role to continue.</p>
         {!adminMode ? (
           <div className="mt-8 flex items-center justify-center gap-3">
             <button
               onClick={handleStudent}
               disabled={loading}
-              className="inline-flex items-center justify-center h-11 px-6 rounded-md bg-accent text-fg-inverted hover:bg-accent-hover disabled:opacity-60"
+              className="inline-flex items-center justify-center h-11 px-6 rounded-md bg-gradient-to-r from-accent to-sky-500 text-fg-inverted hover:opacity-90 disabled:opacity-60 transition"
             >
               {loading ? 'Loading...' : 'Student'}
             </button>
@@ -78,7 +84,7 @@ export default function Landing() {
               <button
                 type="submit"
                 disabled={adminLoading}
-                className="h-10 px-6 rounded-md bg-accent text-fg-inverted hover:bg-accent-hover disabled:opacity-60"
+                className="h-10 px-6 rounded-md bg-gradient-to-r from-accent to-sky-500 text-fg-inverted hover:opacity-90 disabled:opacity-60 transition"
               >
                 {adminLoading ? 'Signing in...' : 'Continue'}
               </button>

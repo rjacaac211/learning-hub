@@ -4,7 +4,7 @@ import { Link, useLocation } from 'react-router-dom'
 export default function TopNav() {
   const location = useLocation()
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-bg/80 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-border bg-gradient-to-b from-white/80 to-white/50 backdrop-blur">
       <div className="container h-14 px-6 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 rounded-md bg-accent" />
