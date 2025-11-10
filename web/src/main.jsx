@@ -5,7 +5,7 @@ import './index.css'
 import App from './routes/App'
 import Landing from './routes/Landing'
 import Signin from './routes/Signin'
-import Browser from './routes/Browser'
+import Library from './routes/Library'
 
 const router = createBrowserRouter([
   {
@@ -14,7 +14,7 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <Landing /> },
       { path: 'signin', element: <Signin /> },
-      { path: 'browser/*', element: <Browser /> }
+      { path: 'library/*', element: <Library /> }
     ]
   }
 ])
