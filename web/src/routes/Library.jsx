@@ -124,10 +124,21 @@ export default function Library() {
           {filteredFiles.length > 0 && (
             <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredFiles.map(f => {
-                const isPdf = String(f.mime || '').toLowerCase().includes('pdf')
+                const mime = String(f.mime || '').toLowerCase()
+                const isPdf = mime.includes('pdf')
+                const isVideo = mime.startsWith('video/')
                 if (isPdf) {
                   return (
                     <div key={f.path} onClick={() => navigate(`/pdf${f.path}`)}>
+                      <Card interactive className="cursor-pointer">
+                        <CardTitle className="truncate">{f.name}</CardTitle>
+                      </Card>
+                    </div>
+                  )
+                }
+                if (isVideo) {
+                  return (
+                    <div key={f.path} onClick={() => navigate(`/video${f.path}`)}>
                       <Card interactive className="cursor-pointer">
                         <CardTitle className="truncate">{f.name}</CardTitle>
                       </Card>

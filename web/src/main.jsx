@@ -7,6 +7,7 @@ import Landing from './routes/Landing'
 import Signin from './routes/Signin'
 import Library from './routes/Library'
 import Pdf from './routes/Pdf'
+import Video from './routes/Video'
 
 const router = createBrowserRouter([
   {
@@ -16,7 +17,8 @@ const router = createBrowserRouter([
       { index: true, element: <Landing /> },
       { path: 'signin', element: <Signin /> },
       { path: 'library/*', element: <Library /> },
-      { path: 'pdf/*', element: <Pdf /> }
+      { path: 'pdf/*', element: <Pdf /> },
+      { path: 'video/*', element: <Video /> }
     ]
   }
 ])
