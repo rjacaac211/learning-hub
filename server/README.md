@@ -5,6 +5,8 @@ Node 20 + Express 4 (CommonJS). Provides content listing and static file serving
 Environment
 - `PORT` (default: 3001)
 - `CONTENT_DIR` (default: `./content` in this folder for local dev)
+- `ADMIN_PASSWORD` (default: `admin`)
+- `RAW_DIR` (optional) source folder for import script; defaults to repo `raw_files/`
 
 Setup (Windows dev)
 1. `cd server`
@@ -33,6 +35,12 @@ Structure sync
 - Mirror the learning hierarchy described in the repo `structure.md` under your `CONTENT_DIR`:
   - One-time sync (idempotent): `npm run sync-structure`
   - Env: `CONTENT_DIR` (default: `./content`), `ADMIN_PASSWORD` (default: `admin`)
+
+Import PDFs
+- Move PDF files from `RAW_DIR` into the canonical `.../Learning Materials/` folders under `CONTENT_DIR`:
+  - Run: `npm run import-pdfs`
+  - Options: set `RAW_DIR` env, or pass `--raw "<path>"` (e.g., `npm run import-pdfs -- --raw "D:\\Users\\RJ\\Side Projects\\learning-hub\\raw_files"`)
+  - Behavior: ignores videos, fuzzy-matches folder names against `structure.md`, skips low-confidence matches and logs to `server/import-pdfs.log`.
 
 Nginx sample
 Use this site config (adapt paths to your setup):
