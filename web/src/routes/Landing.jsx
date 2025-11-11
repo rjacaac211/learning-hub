@@ -27,6 +27,11 @@ export default function Landing() {
     try {
       const res = await auth('admin', adminPassword)
       localStorage.setItem('learningHubRole', res.role)
+      if (res.token) {
+        localStorage.setItem('learningHubToken', res.token)
+      } else {
+        localStorage.removeItem('learningHubToken')
+      }
       navigate('/library')
     } catch (err) {
       setAdminError(err.message || 'Invalid password')

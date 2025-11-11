@@ -1,6 +1,6 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
 import './index.css'
 import App from './routes/App'
 import Landing from './routes/Landing'
@@ -14,7 +14,7 @@ const router = createBrowserRouter([
     path: '/',
     element: <App />,
     children: [
-      { index: true, element: <Landing /> },
+      { index: true, element: <Navigate to="signin" replace /> },
       { path: 'signin', element: <Signin /> },
       { path: 'library/*', element: <Library /> },
       { path: 'pdf/*', element: <Pdf /> },

@@ -1,6 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { getNodes } from '../lib/api'
+import { getNodes, createFolder, renameFolder, deleteFolder, uploadFile, renameFile, deleteFile } from '../lib/api'
 import { Card, CardTitle } from '../ui/Card'
 import Skeleton from '../ui/Skeleton'
 import EmptyState from '../ui/EmptyState'
@@ -19,6 +19,9 @@ export default function Library() {
   useEffect(() => {
     document.title = 'Learning Hub — Library'
   }, [])
+
+  const isAdmin = typeof window !== 'undefined' && localStorage.getItem('learningHubRole') === 'admin' && !!localStorage.getItem('learningHubToken')
+  const fileInputRef = useRef(null)
 
   useEffect(() => {
     let cancelled = false
@@ -58,6 +61,88 @@ export default function Library() {
     navigate(parent ? `/library/${parent}` : '/library')
   }
 
+  async function refresh() {
+    setLoading(true)
+    setError('')
+    try {
+      const data = await getNodes(currentPath)
+      setNodes(data)
+    } catch (err) {
+      setError(err.message || 'Failed to load')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function onNewFolder() {
+    const name = window.prompt('New folder name:')
+    if (!name) return
+    try {
+      await createFolder(currentPath, name)
+      refresh()
+    } catch (err) {
+      alert(err.message || 'Failed to create folder')
+    }
+  }
+
+  function onUploadClick() {
+    fileInputRef.current?.click()
+  }
+
+  async function onFileChosen(e) {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file) return
+    try {
+      await uploadFile(currentPath, file)
+      refresh()
+    } catch (err) {
+      alert(err.message || 'Failed to upload file')
+    }
+  }
+
+  async function onRenameFolder(path) {
+    const newName = window.prompt('Rename folder to:')
+    if (!newName) return
+    try {
+      await renameFolder(path, newName)
+      refresh()
+    } catch (err) {
+      alert(err.message || 'Failed to rename folder')
+    }
+  }
+
+  async function onDeleteFolder(path) {
+    if (!window.confirm('Delete this folder? Only empty folders can be deleted.')) return
+    try {
+      await deleteFolder(path)
+      refresh()
+    } catch (err) {
+      alert(err.message || 'Failed to delete folder')
+    }
+  }
+
+  async function onRenameFile(path) {
+    const newName = window.prompt('Rename file to (keep .pdf or .mp4):')
+    if (!newName) return
+    try {
+      await renameFile(path, newName)
+      refresh()
+    } catch (err) {
+      alert(err.message || 'Failed to rename file')
+    }
+  }
+
+  async function onDeleteFile(path) {
+    if (!window.confirm('Delete this file?')) return
+    try {
+      await deleteFile(path)
+      refresh()
+    } catch (err) {
+      alert(err.message || 'Failed to delete file')
+    }
+  }
+
   return (
     <div className="relative">
       {/* page-specific soft blobs */}
@@ -83,6 +168,17 @@ export default function Library() {
               )
             })}
           </nav>
+          {isAdmin && (
+            <div className="ml-auto flex items-center gap-2">
+              <button onClick={onNewFolder} className="h-8 px-3 rounded-md bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm hover:opacity-90">
+                + New Folder
+              </button>
+              <button onClick={onUploadClick} className="h-8 px-3 rounded-md bg-gradient-to-r from-indigo-500 to-sky-500 text-white text-sm hover:opacity-90">
+                ⬆ Upload
+              </button>
+              <input ref={fileInputRef} type="file" accept=".pdf,.mp4" onChange={onFileChosen} className="hidden" />
+            </div>
+          )}
         </div>
         <div>
           <input
@@ -118,6 +214,12 @@ export default function Library() {
             {filteredDirs.map(d => (
               <Card key={d.path} interactive className="cursor-pointer" onClick={() => navigate(`/library${d.path}`)}>
                 <CardTitle className="truncate">{d.name}</CardTitle>
+                {isAdmin && (
+                  <div className="mt-2 flex gap-2">
+                    <button onClick={(e) => { e.stopPropagation(); onRenameFolder(d.path) }} className="text-xs px-2 py-1 rounded bg-gray-200 hover:bg-gray-300">Rename</button>
+                    <button onClick={(e) => { e.stopPropagation(); onDeleteFolder(d.path) }} className="text-xs px-2 py-1 rounded bg-red-500 text-white hover:opacity-90">Delete</button>
+                  </div>
+                )}
               </Card>
             ))}
           </div>
@@ -132,6 +234,12 @@ export default function Library() {
                     <div key={f.path} onClick={() => navigate(`/pdf${f.path}`)}>
                       <Card interactive className="cursor-pointer">
                         <CardTitle className="truncate">{f.name}</CardTitle>
+                        {isAdmin && (
+                          <div className="mt-2 flex gap-2" onClick={e => e.stopPropagation()}>
+                            <button onClick={() => onRenameFile(f.path)} className="text-xs px-2 py-1 rounded bg-gray-200 hover:bg-gray-300">Rename</button>
+                            <button onClick={() => onDeleteFile(f.path)} className="text-xs px-2 py-1 rounded bg-red-500 text-white hover:opacity-90">Delete</button>
+                          </div>
+                        )}
                       </Card>
                     </div>
                   )
@@ -141,6 +249,12 @@ export default function Library() {
                     <div key={f.path} onClick={() => navigate(`/video${f.path}`)}>
                       <Card interactive className="cursor-pointer">
                         <CardTitle className="truncate">{f.name}</CardTitle>
+                        {isAdmin && (
+                          <div className="mt-2 flex gap-2" onClick={e => e.stopPropagation()}>
+                            <button onClick={() => onRenameFile(f.path)} className="text-xs px-2 py-1 rounded bg-gray-200 hover:bg-gray-300">Rename</button>
+                            <button onClick={() => onDeleteFile(f.path)} className="text-xs px-2 py-1 rounded bg-red-500 text-white hover:opacity-90">Delete</button>
+                          </div>
+                        )}
                       </Card>
                     </div>
                   )
@@ -149,6 +263,12 @@ export default function Library() {
                   <a key={f.path} href={`/files${f.path}`} target="_blank" rel="noreferrer">
                     <Card interactive className="cursor-pointer">
                       <CardTitle className="truncate">{f.name}</CardTitle>
+                      {isAdmin && (
+                        <div className="mt-2 flex gap-2">
+                          <button onClick={(e) => { e.preventDefault(); onRenameFile(f.path) }} className="text-xs px-2 py-1 rounded bg-gray-200 hover:bg-gray-300">Rename</button>
+                          <button onClick={(e) => { e.preventDefault(); onDeleteFile(f.path) }} className="text-xs px-2 py-1 rounded bg-red-500 text-white hover:opacity-90">Delete</button>
+                        </div>
+                      )}
                     </Card>
                   </a>
                 )
