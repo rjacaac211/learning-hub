@@ -4,8 +4,8 @@ import { NavLink, useNavigate } from 'react-router-dom'
 export default function BottomNav() {
   const navigate = useNavigate()
   return (
-    <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 border-t border-border bg-white/90 backdrop-blur safe-bottom">
-      <div className="flex items-stretch justify-around px-2">
+    <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 border-t border-border bg-white/90 backdrop-blur safe-bottom h-16">
+      <div className="flex items-stretch justify-around px-2 h-full">
         <NavLink
           to="/"
           className={({ isActive }) =>

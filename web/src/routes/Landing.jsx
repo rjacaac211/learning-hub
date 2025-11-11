@@ -80,7 +80,7 @@ export default function Landing() {
             <label className="block text-sm mb-2">Admin password</label>
             <input
               type="password"
-              className="w-full h-12 px-4 text-base border border-border rounded focus-visible:ring-2 focus-visible:ring-accent"
+              className="w-full h-12 px-4 text-base rounded-md bg-white/60 backdrop-blur-sm border border-white/0 shadow-sm focus-visible:ring-2 focus-visible:ring-accent"
               value={adminPassword}
               onChange={e => setAdminPassword(e.target.value)}
               autoFocus
