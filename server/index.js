@@ -9,6 +9,35 @@ const jwt = require('jsonwebtoken');
 const multer = require('multer');
 const os = require('os');
 
+// --- Dictionary dataset configuration ---
+// Path to the attached english-dictionary dataset at repo root
+const DICT_DIR = process.env.DICT_DIR || path.resolve(__dirname, '..', 'english-dictionary');
+let dictIndex = null; // { display: string[], lower: string[] }
+
+async function ensureDictIndex() {
+  if (dictIndex) return dictIndex;
+  const indexPath = path.join(DICT_DIR, 'index.csv');
+  let raw = '';
+  try {
+    raw = await fs.promises.readFile(indexPath, 'utf8');
+  } catch {
+    // If index is missing, fall back to empty
+    dictIndex = { display: [], lower: [] };
+    return dictIndex;
+  }
+  const lines = raw.split(/\r?\n/);
+  const display = [];
+  const lower = [];
+  for (let i = 0; i < lines.length; i++) {
+    const w = lines[i].trim();
+    if (!w) continue;
+    display.push(w);
+    lower.push(w.toLowerCase());
+  }
+  dictIndex = { display, lower };
+  return dictIndex;
+}
+
 // Load environment variables from .env if present
 dotenv.config();
 
@@ -144,6 +173,38 @@ app.get('/api/nodes', async (req, res) => {
   const name = segments.length ? segments[segments.length - 1] : '';
 
   res.json({ path: qPath === '' ? '/' : qPath, name, dirs, files });
+});
+
+// --- Dictionary API ---
+// Search words by prefix
+app.get('/api/dictionary/search', async (req, res) => {
+  const q = String(req.query.query || '').trim().toLowerCase();
+  const limit = Math.min(100, Math.max(1, parseInt(req.query.limit || '20', 10)));
+  if (!q) return res.json([]);
+  const index = await ensureDictIndex();
+  const out = [];
+  // Simple linear scan with early exit for small limit; fast enough for 80k words
+  for (let i = 0; i < index.lower.length && out.length < limit; i++) {
+    if (index.lower[i].startsWith(q)) out.push(index.display[i]);
+  }
+  return res.json(out);
+});
+
+// Get definitions for a specific word (english only)
+app.get('/api/dictionary/word/:word', async (req, res) => {
+  const word = String(req.params.word || '').trim();
+  if (!word) return res.status(400).json({ error: 'Missing word' });
+  const w = word.toLowerCase();
+  const d1 = w[0];
+  const d2 = w[1] || '';
+  const file = path.join(DICT_DIR, d1, d2, w, 'en.json');
+  try {
+    const raw = await fs.promises.readFile(file, 'utf8');
+    const json = JSON.parse(raw);
+    return res.json({ word: json.word || word, definitions: json.definitions || [] });
+  } catch {
+    return res.status(404).json({ error: 'Not Found' });
+  }
 });
 
 // --- Admin: folders CRUD ---

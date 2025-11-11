@@ -7,12 +7,14 @@ import EmptyState from '../ui/EmptyState'
 import Modal from '../ui/Modal'
 import { showToast } from '../ui/toastBus'
 import { ChevronLeftIcon, PlusIcon, ArrowUpIcon } from '../ui/Icon'
+import EnglishDictionary from './EnglishDictionary'
 
 export default function Library() {
   const params = useParams()
   const navigate = useNavigate()
   const splat = params['*'] || ''
   const currentPath = ('/' + splat).replace(/\/+/g, '/')
+  const isDictionary = currentPath === '/Others/English Dictionary'
 
   const [nodes, setNodes] = useState({ path: '/', name: '', dirs: [], files: [] })
   const [query, setQuery] = useState('')
@@ -41,12 +43,16 @@ export default function Library() {
     let cancelled = false
     setLoading(true)
     setError('')
+    if (isDictionary) {
+      setLoading(false)
+      return () => { cancelled = true }
+    }
     getNodes(currentPath)
       .then(data => { if (!cancelled) setNodes(data) })
       .catch(err => { if (!cancelled) setError(err.message || 'Failed to load') })
       .finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
-  }, [currentPath])
+  }, [currentPath, isDictionary])
 
   const filteredDirs = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -139,6 +145,10 @@ export default function Library() {
   async function onDeleteFile(path) {
     const name = decodeURIComponent(path.split('/').pop() || 'file')
     setConfirmDelete({ kind: 'file', path, name })
+  }
+
+  if (isDictionary) {
+    return <EnglishDictionary />
   }
 
   return (
