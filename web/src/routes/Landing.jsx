@@ -49,7 +49,7 @@ export default function Landing() {
     }
   }
   return (
-    <section className="relative h-screen flex items-start justify-center overflow-hidden pt-36 sm:pt-40">
+    <section className="relative h-screen flex items-start justify-center overflow-hidden pt-32 sm:pt-36">
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute -top-24 -left-24 w-[520px] h-[520px] bg-gradient-to-br from-accent/25 to-sky-400/25 blur-3xl rounded-full" />
         <div className="absolute -bottom-24 -right-24 w-[520px] h-[520px] bg-gradient-to-tr from-purple-500/20 to-accent/20 blur-3xl rounded-full" />
