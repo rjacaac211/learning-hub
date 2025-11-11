@@ -6,6 +6,10 @@ Environment
 - `PORT` (default: 3001)
 - `CONTENT_DIR` (default: `./content` in this folder for local dev)
 - `ADMIN_PASSWORD` (default: `admin`)
+- `ADMIN_TOKEN_SECRET` (default: `dev-secret-change-me`) used to sign admin tokens
+- `ADMIN_TOKEN_TTL` (default: `12h`) admin token expiry
+- `NODE_ENV` (default: `development`) enables CORS in dev
+- `DICT_DIR` (default: `../english-dictionary`) path to the English Dictionary dataset
 - `RAW_DIR` (optional) source folder for import script; defaults to repo `raw_files/`
 
 Setup (Windows dev)
@@ -20,6 +24,9 @@ Endpoints
 - `POST /api/auth` → Body `{ role: 'student' }` or `{ role: 'admin', password }`. Returns `{ role }`. Uses `ADMIN_PASSWORD` env (default `admin`) for admin verification.
 - `GET /api/nodes?path=/...` → Lists a single level of directories/files under the provided POSIX-style path. Returns `{ path, name, dirs: [{name, path}], files: [{name, path, size, mime}] }`.
 - Static files at `/files` (mounted from `CONTENT_DIR`)
+- Dictionary:
+  - `GET /api/dictionary/search?query=<text>&limit=20` → `string[]` of matching words (prefix search)
+  - `GET /api/dictionary/word/:word` → `{ word, definitions: [{ pos, definition }] }` (reads from `DICT_DIR`)
 
 Static security
 - Path traversal protected by `express.static`
@@ -30,6 +37,25 @@ Production (Raspberry Pi)
 2. `cd server && npm ci`
 3. Run: `npm start` (or via pm2 using repo `ecosystem.config.js`)
 4. Serve frontend build separately (see web README). Nginx recommended.
+5. Set `NODE_ENV=production` in your `.env` for a safer setup over hotspot/Wi‑Fi.
+
+Recommended `.env` for Raspberry Pi
+```
+PORT=3001
+CONTENT_DIR=/home/pi/content
+DICT_DIR=../english-dictionary
+
+# Authentication
+ADMIN_PASSWORD=change-me
+ADMIN_TOKEN_SECRET=use-a-strong-secret
+ADMIN_TOKEN_TTL=12h
+
+# Environment
+NODE_ENV=production
+```
+
+Development over hotspot (temporary)
+- If you must expose the Vite dev server to devices, keep `NODE_ENV=development` and change the CORS origin in `server/index.js` to your Pi’s IP (e.g., `http://192.168.4.1:5173`). This is for temporary testing only; prefer the production setup above.
 
 Structure sync
 - Mirror the learning hierarchy described in the repo `structure.md` under your `CONTENT_DIR`:

@@ -1,6 +1,6 @@
-Welcome (Sign in as Admin or Student)  # when Sign in as Admin, require password. If Student, directly proceed (for simplicity, let's not add any separate permissions for Admin and Student. just the password difference)
+Landing Page
     ├── Others
-    │   └── Dictionary
+    │   └── English Dictionary            # in-app feature (uses english-dictionary dataset; no files required here)
     ├── Senior High School
     │   └── General Academic Strand
     │       ├── Grade 11
