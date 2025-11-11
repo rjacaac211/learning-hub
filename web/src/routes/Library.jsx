@@ -86,6 +86,10 @@ export default function Library() {
   }
 
   function onUploadClick() {
+    if (isRoot) {
+      alert('Open a folder to upload files.')
+      return
+    }
     fileInputRef.current?.click()
   }
 
@@ -173,9 +177,6 @@ export default function Library() {
               <button onClick={onNewFolder} className="h-8 px-3 rounded-md bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm hover:opacity-90">
                 + New Folder
               </button>
-              <button onClick={onUploadClick} className="h-8 px-3 rounded-md bg-gradient-to-r from-indigo-500 to-sky-500 text-white text-sm hover:opacity-90">
-                ⬆ Upload
-              </button>
               <input ref={fileInputRef} type="file" accept=".pdf,.mp4" onChange={onFileChosen} className="hidden" />
             </div>
           )}
@@ -202,10 +203,20 @@ export default function Library() {
       {error && <div className="mt-6 text-red-600">{error}</div>}
 
       {isEmpty && (
-        <EmptyState
-          title="No results"
-          subtitle="Try a different search."
-        />
+        <div className="mt-10 flex flex-col items-center justify-center gap-4">
+          <EmptyState
+            title="This folder is empty"
+            subtitle={isAdmin ? 'Upload a PDF or MP4 to get started.' : 'No content here yet.'}
+          />
+          {isAdmin && !isRoot && (
+            <button
+              onClick={onUploadClick}
+              className="h-10 px-5 rounded-md bg-gradient-to-r from-accent/70 to-sky-500/70 text-white text-sm hover:from-accent/80 hover:to-sky-600/80 transition"
+            >
+              ⬆ Upload file
+            </button>
+          )}
+        </div>
       )}
 
       {!loading && !error && !isEmpty && (
@@ -273,6 +284,14 @@ export default function Library() {
                   </a>
                 )
               })}
+              {isAdmin && !isRoot && (
+                <div
+                  onClick={onUploadClick}
+                  className="rounded-lg bg-gradient-to-r from-accent/70 to-sky-600/70 hover:from-accent/80 hover:to-sky-700/80 text-white shadow-card p-5 cursor-pointer flex items-center justify-center h-20 transition"
+                >
+                  <div className="text-sm font-medium">⬆ Upload file</div>
+                </div>
+              )}
             </div>
           )}
         </>

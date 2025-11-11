@@ -302,6 +302,21 @@ async function dedupeFilePath(dirAbs, baseName) {
   }
 }
 
+async function moveFileSafe(src, dest) {
+  try {
+    await fs.promises.rename(src, dest);
+    return;
+  } catch (e) {
+    if (e && (e.code === 'EXDEV' || e.code === 'EPERM')) {
+      // Cross-device or permission rename issue: fallback to copy+unlink
+      await fs.promises.copyFile(src, dest);
+      await fs.promises.unlink(src);
+      return;
+    }
+    throw e;
+  }
+}
+
 // Upload file
 app.post('/api/admin/files/upload', requireAdmin, upload.single('file'), async (req, res) => {
   const destPath = typeof req.body?.path === 'string' ? req.body.path : '';
@@ -331,7 +346,7 @@ app.post('/api/admin/files/upload', requireAdmin, upload.single('file'), async (
   let finalAbs;
   try {
     finalAbs = await dedupeFilePath(dirAbs, safeName);
-    await fs.promises.rename(file.path, finalAbs);
+    await moveFileSafe(file.path, finalAbs);
   } catch (e) {
     try { await fs.promises.unlink(file.path); } catch {}
     return res.status(500).json({ error: 'Failed to save file' });
