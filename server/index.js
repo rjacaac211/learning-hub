@@ -13,6 +13,7 @@ const os = require('os');
 // Path to the attached english-dictionary dataset at repo root
 const DICT_DIR = process.env.DICT_DIR || path.resolve(__dirname, '..', 'english-dictionary');
 let dictIndex = null; // { display: string[], lower: string[] }
+const dictEnCache = new Map(); // word(lower) -> boolean (has en.json)
 
 async function ensureDictIndex() {
   if (dictIndex) return dictIndex;
@@ -36,6 +37,21 @@ async function ensureDictIndex() {
   }
   dictIndex = { display, lower };
   return dictIndex;
+}
+
+async function hasEnglishDefinition(wordLower) {
+  if (dictEnCache.has(wordLower)) return dictEnCache.get(wordLower);
+  const d1 = wordLower[0];
+  const d2 = wordLower[1] || '';
+  const file = path.join(DICT_DIR, d1, d2, wordLower, 'en.json');
+  try {
+    await fs.promises.access(file);
+    dictEnCache.set(wordLower, true);
+    return true;
+  } catch {
+    dictEnCache.set(wordLower, false);
+    return false;
+  }
 }
 
 // Load environment variables from .env if present
@@ -183,9 +199,15 @@ app.get('/api/dictionary/search', async (req, res) => {
   if (!q) return res.json([]);
   const index = await ensureDictIndex();
   const out = [];
-  // Simple linear scan with early exit for small limit; fast enough for 80k words
+  // Linear scan with early exit; verify en.json exists and cache results
   for (let i = 0; i < index.lower.length && out.length < limit; i++) {
-    if (index.lower[i].startsWith(q)) out.push(index.display[i]);
+    const lw = index.lower[i];
+    if (!lw.startsWith(q)) continue;
+    // Only include entries that have an english definition file
+    // eslint-disable-next-line no-await-in-loop
+    if (await hasEnglishDefinition(lw)) {
+      out.push(index.display[i]);
+    }
   }
   return res.json(out);
 });
