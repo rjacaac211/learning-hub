@@ -6,7 +6,7 @@ import Skeleton from '../ui/Skeleton'
 import EmptyState from '../ui/EmptyState'
 import Modal from '../ui/Modal'
 import { showToast } from '../ui/toastBus'
-import { ChevronLeftIcon } from '../ui/Icon'
+import { ChevronLeftIcon, PlusIcon, ArrowUpIcon } from '../ui/Icon'
 
 export default function Library() {
   const params = useParams()
@@ -148,7 +148,7 @@ export default function Library() {
         <div className="absolute top-10 right-10 w-[360px] h-[360px] bg-gradient-to-br from-sky-400/15 to-purple-500/15 blur-3xl rounded-full" />
       </div>
       <div className="relative flex flex-col gap-3">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
           {!isRoot && (
             <button
               onClick={goUp}
@@ -162,7 +162,7 @@ export default function Library() {
           {/* Compact, scrollable breadcrumb on mobile */}
           <nav
             aria-label="Breadcrumb"
-            className="md:hidden flex items-center gap-1 bg-white/80 backdrop-blur-sm rounded-md px-3 h-12 border border-white/0 shadow-sm overflow-x-auto whitespace-nowrap no-scrollbar"
+            className="md:hidden flex items-center gap-1 bg-white/80 backdrop-blur-sm rounded-md px-3 h-12 border border-white/0 shadow-sm overflow-x-auto whitespace-nowrap no-scrollbar flex-1 min-w-0"
           >
             <button onClick={() => navigate('/library')} className="px-2 py-1 rounded hover:underline">Home</button>
             {mobileSegments.map((seg, i) => {
@@ -177,7 +177,7 @@ export default function Library() {
             })}
           </nav>
           {/* Full breadcrumb on md+ */}
-          <nav className="hidden md:flex text-sm text-fg items-center flex-wrap gap-1 bg-white/60 backdrop-blur-sm rounded-md px-3 py-2 border border-white/0 shadow-sm">
+          <nav className="hidden md:flex text-sm text-fg items-center flex-wrap gap-1 bg-white/60 backdrop-blur-sm rounded-md px-3 py-2 border border-white/0 shadow-sm flex-1 min-w-0">
             <button onClick={() => navigate('/library')} className="hover:underline">Home</button>
             {segments.map((seg, i) => {
               const to = '/library/' + segments.slice(0, i + 1).join('/')
@@ -189,16 +189,8 @@ export default function Library() {
               )
             })}
           </nav>
-          {isAdmin && (
-            <div className="ml-auto flex items-center gap-2">
-              <button onClick={onNewFolder} className="tap-target md:h-8 md:text-sm rounded-md bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:opacity-90">
-                + New Folder
-              </button>
-              <input ref={fileInputRef} type="file" accept=".pdf,.mp4" onChange={onFileChosen} className="hidden" />
-            </div>
-          )}
         </div>
-        <div>
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           <input
             type="search"
             placeholder="Search in this folder..."
@@ -206,6 +198,15 @@ export default function Library() {
             value={query}
             onChange={e => setQuery(e.target.value)}
           />
+          {isAdmin && (
+            <div className="flex items-center gap-2 sm:ml-auto shrink-0">
+              <button onClick={onNewFolder} className="tap-target md:h-8 md:text-sm rounded-md bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:opacity-90 flex items-center gap-1.5 px-3 md:px-3">
+                <PlusIcon className="w-4 h-4 md:w-3.5 md:h-3.5 shrink-0" />
+                <span className="whitespace-nowrap">New Folder</span>
+              </button>
+              <input ref={fileInputRef} type="file" accept=".pdf,.mp4" onChange={onFileChosen} className="hidden" />
+            </div>
+          )}
         </div>
       </div>
 
@@ -228,9 +229,10 @@ export default function Library() {
           {isAdmin && !isRoot && (
             <button
               onClick={onUploadClick}
-              className="tap-target md:h-10 rounded-md bg-gradient-to-r from-accent/70 to-sky-500/70 text-white hover:from-accent/80 hover:to-sky-600/80 transition"
+              className="tap-target md:h-10 rounded-md bg-gradient-to-r from-accent/70 to-sky-500/70 text-white hover:from-accent/80 hover:to-sky-600/80 transition flex items-center justify-center gap-2"
             >
-              ⬆ Upload file
+              <ArrowUpIcon className="w-5 h-5" />
+              <span>Upload file</span>
             </button>
           )}
         </div>
@@ -244,8 +246,8 @@ export default function Library() {
                 <CardTitle className="truncate">{d.name}</CardTitle>
                 {isAdmin && (
                   <div className="mt-2 flex gap-2">
-                    <button onClick={(e) => { e.stopPropagation(); onRenameFolder(d.path) }} className="text-xs px-2 py-1 rounded-md border border-border bg-white text-fg hover:opacity-90">Rename</button>
-                    <button onClick={(e) => { e.stopPropagation(); onDeleteFolder(d.path) }} className="text-xs px-2 py-1 rounded-md bg-gradient-to-r from-rose-400 to-rose-500 text-white hover:opacity-90">Delete</button>
+                    <button onClick={(e) => { e.stopPropagation(); onRenameFolder(d.path) }} className="text-sm px-4 py-2 md:text-xs md:px-2 md:py-1 rounded-md border border-border bg-white text-fg hover:opacity-90 min-h-[48px] md:min-h-0">Rename</button>
+                    <button onClick={(e) => { e.stopPropagation(); onDeleteFolder(d.path) }} className="text-sm px-4 py-2 md:text-xs md:px-2 md:py-1 rounded-md bg-gradient-to-r from-rose-400 to-rose-500 text-white hover:opacity-90 min-h-[48px] md:min-h-0">Delete</button>
                   </div>
                 )}
               </Card>
@@ -264,8 +266,8 @@ export default function Library() {
                         <CardTitle className="truncate">{f.name}</CardTitle>
                         {isAdmin && (
                           <div className="mt-2 flex gap-2" onClick={e => e.stopPropagation()}>
-                            <button onClick={() => onRenameFile(f.path)} className="text-xs px-2 py-1 rounded-md border border-border bg-white text-fg hover:opacity-90">Rename</button>
-                            <button onClick={() => onDeleteFile(f.path)} className="text-xs px-2 py-1 rounded-md bg-gradient-to-r from-rose-400 to-rose-500 text-white hover:opacity-90">Delete</button>
+                            <button onClick={() => onRenameFile(f.path)} className="text-sm px-4 py-2 md:text-xs md:px-2 md:py-1 rounded-md border border-border bg-white text-fg hover:opacity-90 min-h-[48px] md:min-h-0">Rename</button>
+                            <button onClick={() => onDeleteFile(f.path)} className="text-sm px-4 py-2 md:text-xs md:px-2 md:py-1 rounded-md bg-gradient-to-r from-rose-400 to-rose-500 text-white hover:opacity-90 min-h-[48px] md:min-h-0">Delete</button>
                           </div>
                         )}
                       </Card>
@@ -279,8 +281,8 @@ export default function Library() {
                         <CardTitle className="truncate">{f.name}</CardTitle>
                         {isAdmin && (
                           <div className="mt-2 flex gap-2" onClick={e => e.stopPropagation()}>
-                            <button onClick={() => onRenameFile(f.path)} className="text-xs px-2 py-1 rounded-md border border-border bg-white text-fg hover:opacity-90">Rename</button>
-                            <button onClick={() => onDeleteFile(f.path)} className="text-xs px-2 py-1 rounded-md bg-gradient-to-r from-rose-400 to-rose-500 text-white hover:opacity-90">Delete</button>
+                            <button onClick={() => onRenameFile(f.path)} className="text-sm px-4 py-2 md:text-xs md:px-2 md:py-1 rounded-md border border-border bg-white text-fg hover:opacity-90 min-h-[48px] md:min-h-0">Rename</button>
+                            <button onClick={() => onDeleteFile(f.path)} className="text-sm px-4 py-2 md:text-xs md:px-2 md:py-1 rounded-md bg-gradient-to-r from-rose-400 to-rose-500 text-white hover:opacity-90 min-h-[48px] md:min-h-0">Delete</button>
                           </div>
                         )}
                       </Card>
@@ -293,8 +295,8 @@ export default function Library() {
                       <CardTitle className="truncate">{f.name}</CardTitle>
                       {isAdmin && (
                         <div className="mt-2 flex gap-2">
-                          <button onClick={(e) => { e.preventDefault(); onRenameFile(f.path) }} className="text-xs px-2 py-1 rounded-md border border-border bg-white text-fg hover:opacity-90">Rename</button>
-                          <button onClick={(e) => { e.preventDefault(); onDeleteFile(f.path) }} className="text-xs px-2 py-1 rounded-md bg-gradient-to-r from-rose-400 to-rose-500 text-white hover:opacity-90">Delete</button>
+                          <button onClick={(e) => { e.preventDefault(); onRenameFile(f.path) }} className="text-sm px-4 py-2 md:text-xs md:px-2 md:py-1 rounded-md border border-border bg-white text-fg hover:opacity-90 min-h-[48px] md:min-h-0">Rename</button>
+                          <button onClick={(e) => { e.preventDefault(); onDeleteFile(f.path) }} className="text-sm px-4 py-2 md:text-xs md:px-2 md:py-1 rounded-md bg-gradient-to-r from-rose-400 to-rose-500 text-white hover:opacity-90 min-h-[48px] md:min-h-0">Delete</button>
                         </div>
                       )}
                     </Card>
@@ -306,7 +308,10 @@ export default function Library() {
                   onClick={!uploading ? onUploadClick : undefined}
                   className={`rounded-lg bg-gradient-to-r from-accent/70 to-sky-600/70 hover:from-accent/80 hover:to-sky-700/80 text-white shadow-card p-5 ${uploading ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'} flex items-center justify-center h-20 transition`}
                 >
-                  <div className="text-sm font-medium">{uploading ? 'Uploading...' : '⬆ Upload file'}</div>
+                  <div className="text-sm font-medium flex items-center gap-2">
+                    {!uploading && <ArrowUpIcon className="w-5 h-5" />}
+                    <span>{uploading ? 'Uploading...' : 'Upload file'}</span>
+                  </div>
                 </div>
               )}
             </div>

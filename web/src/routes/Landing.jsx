@@ -9,7 +9,16 @@ export default function Landing() {
   const [adminPassword, setAdminPassword] = useState('')
   const [adminLoading, setAdminLoading] = useState(false)
   const [adminError, setAdminError] = useState('')
-  useEffect(() => { document.title = 'The Solar Archive' }, [])
+  useEffect(() => { 
+    document.title = 'The Solar Archive'
+    // Prevent scrolling on landing page
+    document.documentElement.style.overflow = 'hidden'
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.documentElement.style.overflow = ''
+      document.body.style.overflow = ''
+    }
+  }, [])
   async function handleStudent() {
     try {
       setLoading(true)
@@ -40,14 +49,14 @@ export default function Landing() {
     }
   }
   return (
-    <section className="relative min-h-[calc(100vh-80px)] flex items-center justify-center overflow-hidden">
+    <section className="relative h-screen flex items-start justify-center overflow-hidden pt-36 sm:pt-40">
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute -top-24 -left-24 w-[520px] h-[520px] bg-gradient-to-br from-accent/25 to-sky-400/25 blur-3xl rounded-full" />
         <div className="absolute -bottom-24 -right-24 w-[520px] h-[520px] bg-gradient-to-tr from-purple-500/20 to-accent/20 blur-3xl rounded-full" />
       </div>
       <div className="relative text-center px-4">
-        <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight bg-gradient-to-r from-accent to-sky-500 bg-clip-text text-transparent">
-          <span className="whitespace-pre-line">{`The Solar Archive:\n\nKnowledge Powered\n\nby the Sun`}</span>
+        <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight bg-gradient-to-r from-accent to-sky-500 bg-clip-text text-transparent leading-tight">
+          <span className="whitespace-pre-line block">{`The Solar Archive:\nKnowledge Powered\nby the Sun`}</span>
         </h1>
         <p className="mt-4 text-fg-muted max-w-xl mx-auto">Choose your role to continue.</p>
         {!adminMode ? (
