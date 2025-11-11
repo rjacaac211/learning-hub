@@ -16,7 +16,7 @@ export function ToastContainer() {
   }, [])
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 space-y-2 w-[min(320px,calc(100vw-2rem))]">
+    <div className="fixed z-50 space-y-2 w-[min(320px,calc(100vw-2rem))] left-1/2 -translate-x-1/2 bottom-[calc(80px+env(safe-area-inset-bottom))] md:bottom-4 md:left-auto md:right-4 md:translate-x-0">
       {toasts.map(t => (
         <div
           key={t.id}

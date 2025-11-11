@@ -16,7 +16,7 @@ export default function Video() {
       <div className="flex items-center gap-3 mb-3">
         <button
           onClick={() => navigate(-1)}
-          className="h-8 px-3 rounded-md bg-gradient-to-r from-accent/90 to-sky-500/90 text-white text-sm hover:opacity-90"
+          className="tap-target md:h-8 md:text-sm rounded-md bg-gradient-to-r from-accent/90 to-sky-500/90 text-white hover:opacity-90"
         >
           ← Back
         </button>
@@ -24,7 +24,7 @@ export default function Video() {
       </div>
 
       <div className="rounded-lg border border-border bg-white shadow-card overflow-hidden">
-        <video src={src} controls className="w-full h-[calc(100vh-220px)] bg-black" />
+        <video src={src} controls className="w-full h-[calc(100vh-280px)] md:h-[calc(100vh-220px)] bg-black" />
       </div>
     </section>
   )

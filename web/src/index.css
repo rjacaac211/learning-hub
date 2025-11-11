@@ -25,5 +25,23 @@ a { @apply text-accent hover:text-accent-hover focus:outline-none focus-visible:
 
 button { @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded; }
 
+@layer components {
+  .tap-target {
+    @apply min-h-[48px] min-w-[48px] px-4 text-base rounded-md;
+  }
+}
+
+@layer utilities {
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+}
 
 

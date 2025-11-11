@@ -6,6 +6,7 @@ import Skeleton from '../ui/Skeleton'
 import EmptyState from '../ui/EmptyState'
 import Modal from '../ui/Modal'
 import { showToast } from '../ui/toastBus'
+import { ChevronLeftIcon } from '../ui/Icon'
 
 export default function Library() {
   const params = useParams()
@@ -68,6 +69,7 @@ export default function Library() {
 
   const segments = currentPath.split('/').filter(Boolean)
   const isRoot = segments.length === 0
+  const mobileSegments = segments.slice(Math.max(segments.length - 2, 0))
   function goUp() {
     if (isRoot) return
     const parent = segments.slice(0, -1).join('/')
@@ -148,11 +150,34 @@ export default function Library() {
       <div className="relative flex flex-col gap-3">
         <div className="flex items-center gap-3">
           {!isRoot && (
-            <button onClick={goUp} className="h-8 px-3 rounded-md bg-gradient-to-r from-accent/90 to-sky-500/90 text-white text-sm hover:opacity-90">
-              ← Back
+            <button
+              onClick={goUp}
+              aria-label="Go back"
+              title="Go back"
+              className="tap-target md:h-8 text-lg md:text-sm shrink-0 rounded-lg bg-gradient-to-r from-accent to-sky-600 text-white font-medium shadow-card hover:opacity-90"
+            >
+              <ChevronLeftIcon className="w-5 h-5 md:w-4 md:h-4" />
             </button>
           )}
-          <nav className="text-sm text-fg flex items-center flex-wrap gap-1 bg-white/60 backdrop-blur-sm rounded-md px-2 py-1 border border-white/0 shadow-sm">
+          {/* Compact, scrollable breadcrumb on mobile */}
+          <nav
+            aria-label="Breadcrumb"
+            className="md:hidden flex items-center gap-1 bg-white/80 backdrop-blur-sm rounded-md px-3 h-12 border border-white/0 shadow-sm overflow-x-auto whitespace-nowrap no-scrollbar"
+          >
+            <button onClick={() => navigate('/library')} className="px-2 py-1 rounded hover:underline">Home</button>
+            {mobileSegments.map((seg, i) => {
+              const upto = segments.length - mobileSegments.length + i + 1
+              const to = '/library/' + segments.slice(0, upto).join('/')
+              return (
+                <span key={to} className="flex items-center gap-1">
+                  <span className="text-fg-muted">›</span>
+                  <button onClick={() => navigate(to)} className="px-2 py-1 rounded hover:underline">{decodeURIComponent(seg)}</button>
+                </span>
+              )
+            })}
+          </nav>
+          {/* Full breadcrumb on md+ */}
+          <nav className="hidden md:flex text-sm text-fg items-center flex-wrap gap-1 bg-white/60 backdrop-blur-sm rounded-md px-3 py-2 border border-white/0 shadow-sm">
             <button onClick={() => navigate('/library')} className="hover:underline">Home</button>
             {segments.map((seg, i) => {
               const to = '/library/' + segments.slice(0, i + 1).join('/')
@@ -166,7 +191,7 @@ export default function Library() {
           </nav>
           {isAdmin && (
             <div className="ml-auto flex items-center gap-2">
-              <button onClick={onNewFolder} className="h-8 px-3 rounded-md bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm hover:opacity-90">
+              <button onClick={onNewFolder} className="tap-target md:h-8 md:text-sm rounded-md bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:opacity-90">
                 + New Folder
               </button>
               <input ref={fileInputRef} type="file" accept=".pdf,.mp4" onChange={onFileChosen} className="hidden" />
@@ -177,7 +202,7 @@ export default function Library() {
           <input
             type="search"
             placeholder="Search in this folder..."
-            className="w-full sm:w-[28rem] lg:w-[36rem] px-3 py-2 rounded-md bg-white/60 backdrop-blur-sm border border-white/0 shadow-sm focus-visible:ring-2 focus-visible:ring-accent"
+            className="w-full sm:w-[28rem] lg:w-[36rem] h-12 px-4 text-base rounded-md bg-white/60 backdrop-blur-sm border border-white/0 shadow-sm focus-visible:ring-2 focus-visible:ring-accent"
             value={query}
             onChange={e => setQuery(e.target.value)}
           />
@@ -203,7 +228,7 @@ export default function Library() {
           {isAdmin && !isRoot && (
             <button
               onClick={onUploadClick}
-              className="h-10 px-5 rounded-md bg-gradient-to-r from-accent/70 to-sky-500/70 text-white text-sm hover:from-accent/80 hover:to-sky-600/80 transition"
+              className="tap-target md:h-10 rounded-md bg-gradient-to-r from-accent/70 to-sky-500/70 text-white hover:from-accent/80 hover:to-sky-600/80 transition"
             >
               ⬆ Upload file
             </button>

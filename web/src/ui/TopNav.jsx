@@ -22,7 +22,7 @@ export default function TopNav() {
           {role === 'admin' && hasToken ? (
             <>
               <span className="text-xs px-2 py-1 rounded bg-amber-200 text-amber-900">Admin</span>
-              <button onClick={handleSignOut} className="h-9 px-4 rounded-md bg-accent text-fg-inverted hover:bg-accent-hover transition-colors">Sign out</button>
+              <button onClick={handleSignOut} className="tap-target md:h-9 md:text-sm bg-accent text-fg-inverted hover:bg-accent-hover transition-colors">Sign out</button>
             </>
           ) : null}
         </div>

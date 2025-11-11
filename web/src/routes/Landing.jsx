@@ -55,13 +55,13 @@ export default function Landing() {
             <button
               onClick={handleStudent}
               disabled={loading}
-              className="inline-flex items-center justify-center h-11 px-6 rounded-md bg-gradient-to-r from-accent to-sky-500 text-fg-inverted hover:opacity-90 disabled:opacity-60 transition"
+              className="inline-flex items-center justify-center tap-target md:h-11 bg-gradient-to-r from-accent to-sky-500 text-fg-inverted hover:opacity-90 disabled:opacity-60 transition"
             >
               {loading ? 'Loading...' : 'Student'}
             </button>
             <button
               onClick={() => setAdminMode(true)}
-              className="inline-flex items-center justify-center h-11 px-6 rounded-md border border-border"
+              className="inline-flex items-center justify-center tap-target md:h-11 border border-border"
             >
               Admin
             </button>
@@ -71,7 +71,7 @@ export default function Landing() {
             <label className="block text-sm mb-2">Admin password</label>
             <input
               type="password"
-              className="w-full px-3 py-2 border border-border rounded focus-visible:ring-2 focus-visible:ring-accent"
+              className="w-full h-12 px-4 text-base border border-border rounded focus-visible:ring-2 focus-visible:ring-accent"
               value={adminPassword}
               onChange={e => setAdminPassword(e.target.value)}
               autoFocus
@@ -82,14 +82,14 @@ export default function Landing() {
               <button
                 type="button"
                 onClick={() => { setAdminMode(false); setAdminPassword(''); setAdminError('') }}
-                className="h-10 px-4 rounded-md border border-border"
+                className="tap-target md:h-10 border border-border"
               >
                 Back
               </button>
               <button
                 type="submit"
                 disabled={adminLoading}
-                className="h-10 px-6 rounded-md bg-gradient-to-r from-accent to-sky-500 text-fg-inverted hover:opacity-90 disabled:opacity-60 transition"
+                className="tap-target md:h-10 bg-gradient-to-r from-accent to-sky-500 text-fg-inverted hover:opacity-90 disabled:opacity-60 transition"
               >
                 {adminLoading ? 'Signing in...' : 'Continue'}
               </button>

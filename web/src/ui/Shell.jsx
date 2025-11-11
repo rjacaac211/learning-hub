@@ -1,5 +1,6 @@
 import React from 'react'
 import TopNav from './TopNav'
+import BottomNav from './BottomNav'
 import { ToastContainer } from './Toast'
 
 export default function Shell({ children, showTopNav = true }) {
@@ -11,9 +12,10 @@ export default function Shell({ children, showTopNav = true }) {
         <div className="absolute -bottom-24 -right-24 w-[520px] h-[520px] bg-gradient-to-tr from-purple-500/12 to-accent/12 blur-3xl rounded-full" />
       </div>
       {showTopNav && <TopNav />}
-      <main className="relative container px-6 py-8">
+      <main className="relative container px-6 pt-8 pb-[calc(64px+env(safe-area-inset-bottom))] md:py-8">
         {children}
       </main>
+      <BottomNav />
       <ToastContainer />
     </div>
   )
