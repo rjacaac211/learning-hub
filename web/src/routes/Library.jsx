@@ -4,6 +4,8 @@ import { getNodes, createFolder, renameFolder, deleteFolder, uploadFile, renameF
 import { Card, CardTitle } from '../ui/Card'
 import Skeleton from '../ui/Skeleton'
 import EmptyState from '../ui/EmptyState'
+import Modal from '../ui/Modal'
+import { showToast } from '../ui/toastBus'
 
 export default function Library() {
   const params = useParams()
@@ -22,6 +24,13 @@ export default function Library() {
 
   const isAdmin = typeof window !== 'undefined' && localStorage.getItem('learningHubRole') === 'admin' && !!localStorage.getItem('learningHubToken')
   const fileInputRef = useRef(null)
+
+  // In-app dialogs state
+  const [newFolderOpen, setNewFolderOpen] = useState(false)
+  const [newFolderName, setNewFolderName] = useState('')
+
+  const [renameState, setRenameState] = useState(null) // { kind:'folder'|'file', path, currentName, newName }
+  const [confirmDelete, setConfirmDelete] = useState(null) // { kind:'folder'|'file', path, name }
 
   useEffect(() => {
     let cancelled = false
@@ -75,19 +84,13 @@ export default function Library() {
   }
 
   async function onNewFolder() {
-    const name = window.prompt('New folder name:')
-    if (!name) return
-    try {
-      await createFolder(currentPath, name)
-      refresh()
-    } catch (err) {
-      alert(err.message || 'Failed to create folder')
-    }
+    setNewFolderName('')
+    setNewFolderOpen(true)
   }
 
   function onUploadClick() {
     if (isRoot) {
-      alert('Open a folder to upload files.')
+      showToast('Open a folder to upload files.', 'warn')
       return
     }
     fileInputRef.current?.click()
@@ -99,52 +102,31 @@ export default function Library() {
     if (!file) return
     try {
       await uploadFile(currentPath, file)
+      showToast('File uploaded')
       refresh()
     } catch (err) {
-      alert(err.message || 'Failed to upload file')
+      showToast(err.message || 'Failed to upload file', 'error')
     }
   }
 
   async function onRenameFolder(path) {
-    const newName = window.prompt('Rename folder to:')
-    if (!newName) return
-    try {
-      await renameFolder(path, newName)
-      refresh()
-    } catch (err) {
-      alert(err.message || 'Failed to rename folder')
-    }
+    const currentName = decodeURIComponent(path.split('/').pop() || '')
+    setRenameState({ kind: 'folder', path, currentName, newName: currentName })
   }
 
   async function onDeleteFolder(path) {
-    if (!window.confirm('Delete this folder? Only empty folders can be deleted.')) return
-    try {
-      await deleteFolder(path)
-      refresh()
-    } catch (err) {
-      alert(err.message || 'Failed to delete folder')
-    }
+    const name = decodeURIComponent(path.split('/').pop() || 'folder')
+    setConfirmDelete({ kind: 'folder', path, name })
   }
 
   async function onRenameFile(path) {
-    const newName = window.prompt('Rename file to (keep .pdf or .mp4):')
-    if (!newName) return
-    try {
-      await renameFile(path, newName)
-      refresh()
-    } catch (err) {
-      alert(err.message || 'Failed to rename file')
-    }
+    const currentName = decodeURIComponent(path.split('/').pop() || '')
+    setRenameState({ kind: 'file', path, currentName, newName: currentName })
   }
 
   async function onDeleteFile(path) {
-    if (!window.confirm('Delete this file?')) return
-    try {
-      await deleteFile(path)
-      refresh()
-    } catch (err) {
-      alert(err.message || 'Failed to delete file')
-    }
+    const name = decodeURIComponent(path.split('/').pop() || 'file')
+    setConfirmDelete({ kind: 'file', path, name })
   }
 
   return (
@@ -296,6 +278,130 @@ export default function Library() {
           )}
         </>
       )}
+
+      {/* Modals */}
+      <Modal
+        open={newFolderOpen}
+        title="New folder"
+        onClose={() => setNewFolderOpen(false)}
+        footer={(
+          <>
+            <button onClick={() => setNewFolderOpen(false)} className="h-9 px-4 rounded-md border border-border">Cancel</button>
+            <button
+              onClick={async () => {
+                const name = newFolderName.trim()
+                if (!name) return
+                try {
+                  await createFolder(currentPath, name)
+                  showToast('Folder created')
+                  setNewFolderOpen(false)
+                  setNewFolderName('')
+                  refresh()
+                } catch (err) {
+                  showToast(err.message || 'Failed to create folder', 'error')
+                }
+              }}
+              className="h-9 px-4 rounded-md bg-gradient-to-r from-emerald-500 to-teal-500 text-white"
+            >
+              Create
+            </button>
+          </>
+        )}
+      >
+        <label className="block text-sm mb-2">Folder name</label>
+        <input
+          type="text"
+          value={newFolderName}
+          onChange={e => setNewFolderName(e.target.value)}
+          className="w-full px-3 py-2 border border-border rounded focus-visible:ring-2 focus-visible:ring-accent"
+          placeholder="e.g., Quarter 1"
+          autoFocus
+        />
+      </Modal>
+
+      <Modal
+        open={!!renameState}
+        title={renameState?.kind === 'file' ? 'Rename file' : 'Rename folder'}
+        onClose={() => setRenameState(null)}
+        footer={(
+          <>
+            <button onClick={() => setRenameState(null)} className="h-9 px-4 rounded-md border border-border">Cancel</button>
+            <button
+              onClick={async () => {
+                if (!renameState) return
+                const newName = (renameState.newName || '').trim()
+                if (!newName) return
+                try {
+                  if (renameState.kind === 'folder') {
+                    await renameFolder(renameState.path, newName)
+                  } else {
+                    await renameFile(renameState.path, newName)
+                  }
+                  showToast('Renamed')
+                  setRenameState(null)
+                  refresh()
+                } catch (err) {
+                  showToast(err.message || 'Failed to rename', 'error')
+                }
+              }}
+              className="h-9 px-4 rounded-md bg-gradient-to-r from-accent to-sky-500 text-white"
+            >
+              Save
+            </button>
+          </>
+        )}
+      >
+        <label className="block text-sm mb-2">New name</label>
+        <input
+          type="text"
+          value={renameState?.newName || ''}
+          onChange={e => setRenameState(s => ({ ...(s || {}), newName: e.target.value }))}
+          className="w-full px-3 py-2 border border-border rounded focus-visible:ring-2 focus-visible:ring-accent"
+          placeholder={renameState?.currentName || ''}
+          autoFocus
+        />
+        {renameState?.kind === 'file' && (
+          <div className="mt-2 text-xs text-fg-muted">Only .pdf or .mp4 filenames are allowed.</div>
+        )}
+      </Modal>
+
+      <Modal
+        open={!!confirmDelete}
+        title="Confirm delete"
+        onClose={() => setConfirmDelete(null)}
+        footer={(
+          <>
+            <button onClick={() => setConfirmDelete(null)} className="h-9 px-4 rounded-md border border-border">Cancel</button>
+            <button
+              onClick={async () => {
+                if (!confirmDelete) return
+                try {
+                  if (confirmDelete.kind === 'folder') {
+                    await deleteFolder(confirmDelete.path)
+                  } else {
+                    await deleteFile(confirmDelete.path)
+                  }
+                  showToast('Deleted')
+                  setConfirmDelete(null)
+                  refresh()
+                } catch (err) {
+                  showToast(err.message || 'Failed to delete', 'error')
+                }
+              }}
+              className="h-9 px-4 rounded-md bg-red-600 text-white"
+            >
+              Delete
+            </button>
+          </>
+        )}
+      >
+        <div className="text-sm">
+          {confirmDelete?.kind === 'folder'
+            ? 'Delete this folder? Only empty folders can be deleted.'
+            : 'Delete this file?'}
+        </div>
+        {confirmDelete?.name && <div className="mt-2 text-sm font-medium">{confirmDelete.name}</div>}
+      </Modal>
     </div>
   )
 }

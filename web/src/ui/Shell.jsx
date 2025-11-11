@@ -1,5 +1,6 @@
 import React from 'react'
 import TopNav from './TopNav'
+import { ToastContainer } from './Toast'
 
 export default function Shell({ children, showTopNav = true }) {
   return (
@@ -13,6 +14,7 @@ export default function Shell({ children, showTopNav = true }) {
       <main className="relative container px-6 py-8">
         {children}
       </main>
+      <ToastContainer />
     </div>
   )
 }

@@ -187,6 +187,49 @@ app.post('/api/admin/folders', requireAdmin, async (req, res) => {
   return res.status(201).json({ ok: true, name, path: childPosix });
 });
 
+async function renamePathSafe(oldAbs, newAbs) {
+  try {
+    await fs.promises.rename(oldAbs, newAbs);
+    return;
+  } catch (e) {
+    // Fallback 1: two-step rename via a temp name in same parent (handles case-only and EPERM/EBUSY/EXDEV/etc.)
+    if (e && (e.code === 'EPERM' || e.code === 'EACCES' || e.code === 'EXDEV' || e.code === 'EINVAL' || e.code === 'EBUSY' || e.code === 'ENOTEMPTY')) {
+      try {
+        const parent = path.dirname(oldAbs);
+        const base = path.basename(oldAbs);
+        let tmpName = `.${base}.tmp-rename-${Date.now()}`;
+        let tmpAbs = path.join(parent, tmpName);
+        let n = 1;
+        while (true) {
+          try {
+            await fs.promises.access(tmpAbs);
+            n += 1;
+            tmpName = `.${base}.tmp-rename-${Date.now()}-${n}`;
+            tmpAbs = path.join(parent, tmpName);
+          } catch {
+            break;
+          }
+        }
+        await fs.promises.rename(oldAbs, tmpAbs);
+        await fs.promises.rename(tmpAbs, newAbs);
+        return;
+      } catch (e2) {
+        // Fallback 2: copy then remove (heavier, but robust for stubborn FS cases)
+        try {
+          await fs.promises.cp(oldAbs, newAbs, { recursive: true, force: false, errorOnExist: true });
+          await fs.promises.rm(oldAbs, { recursive: true, force: false });
+          return;
+        } catch (e3) {
+          console.error('renamePathSafe failed:', { step1: e?.code, step2: e2?.code, step3: e3?.code });
+          throw e3;
+        }
+      }
+    }
+    console.error('renamePathSafe error:', e?.code || e);
+    throw e;
+  }
+}
+
 // Rename folder
 app.patch('/api/admin/folders/rename', requireAdmin, async (req, res) => {
   const folderPath = typeof req.body?.path === 'string' ? req.body.path : '';
@@ -207,17 +250,29 @@ app.patch('/api/admin/folders/rename', requireAdmin, async (req, res) => {
 
   const parentDir = path.dirname(abs);
   const newAbs = path.join(parentDir, newName);
-  if (newAbs === abs) return res.json({ ok: true, name: newName, path: folderPath }); // no-op
+  const oldName = path.basename(abs);
+  if (newAbs === abs || oldName === newName) {
+    return res.json({ ok: true, name: newName, path: folderPath }); // no-op
+  }
 
   try {
     await fs.promises.access(newAbs);
-    return res.status(409).json({ error: 'Target name already exists' });
+    // Target exists. Allow case-only rename on case-insensitive FS via two-step.
+    if (oldName.toLowerCase() === newName.toLowerCase()) {
+      try {
+        await renamePathSafe(abs, newAbs);
+      } catch {
+        return res.status(500).json({ error: 'Failed to rename' });
+      }
+    } else {
+      return res.status(409).json({ error: 'Target name already exists' });
+    }
   } catch {
     // ok, does not exist
   }
 
   try {
-    await fs.promises.rename(abs, newAbs);
+    await renamePathSafe(abs, newAbs);
   } catch (e) {
     return res.status(500).json({ error: 'Failed to rename' });
   }
