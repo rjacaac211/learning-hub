@@ -19,7 +19,7 @@ export default function Library() {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    document.title = 'Learning Hub — Library'
+    document.title = 'The Solar Archive — Library'
   }, [])
 
   const isAdmin = typeof window !== 'undefined' && localStorage.getItem('learningHubRole') === 'admin' && !!localStorage.getItem('learningHubToken')
@@ -28,9 +28,13 @@ export default function Library() {
   // In-app dialogs state
   const [newFolderOpen, setNewFolderOpen] = useState(false)
   const [newFolderName, setNewFolderName] = useState('')
+  const [newFolderLoading, setNewFolderLoading] = useState(false)
 
-  const [renameState, setRenameState] = useState(null) // { kind:'folder'|'file', path, currentName, newName }
+  const [renameState, setRenameState] = useState(null) // { kind:'folder'|'file', path, currentName, newName, ext? }
+  const [renameLoading, setRenameLoading] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(null) // { kind:'folder'|'file', path, name }
+  const [deleteLoading, setDeleteLoading] = useState(false)
+  const [uploading, setUploading] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -101,11 +105,14 @@ export default function Library() {
     e.target.value = ''
     if (!file) return
     try {
+      setUploading(true)
       await uploadFile(currentPath, file)
       showToast('File uploaded')
       refresh()
     } catch (err) {
       showToast(err.message || 'Failed to upload file', 'error')
+    } finally {
+      setUploading(false)
     }
   }
 
@@ -121,7 +128,10 @@ export default function Library() {
 
   async function onRenameFile(path) {
     const currentName = decodeURIComponent(path.split('/').pop() || '')
-    setRenameState({ kind: 'file', path, currentName, newName: currentName })
+    const dot = currentName.lastIndexOf('.')
+    const base = dot > 0 ? currentName.slice(0, dot) : currentName
+    const ext = dot > 0 ? currentName.slice(dot) : ''
+    setRenameState({ kind: 'file', path, currentName, newName: base, ext })
   }
 
   async function onDeleteFile(path) {
@@ -209,8 +219,8 @@ export default function Library() {
                 <CardTitle className="truncate">{d.name}</CardTitle>
                 {isAdmin && (
                   <div className="mt-2 flex gap-2">
-                    <button onClick={(e) => { e.stopPropagation(); onRenameFolder(d.path) }} className="text-xs px-2 py-1 rounded bg-gray-200 hover:bg-gray-300">Rename</button>
-                    <button onClick={(e) => { e.stopPropagation(); onDeleteFolder(d.path) }} className="text-xs px-2 py-1 rounded bg-red-500 text-white hover:opacity-90">Delete</button>
+                    <button onClick={(e) => { e.stopPropagation(); onRenameFolder(d.path) }} className="text-xs px-2 py-1 rounded-md border border-border bg-white text-fg hover:opacity-90">Rename</button>
+                    <button onClick={(e) => { e.stopPropagation(); onDeleteFolder(d.path) }} className="text-xs px-2 py-1 rounded-md bg-gradient-to-r from-rose-400 to-rose-500 text-white hover:opacity-90">Delete</button>
                   </div>
                 )}
               </Card>
@@ -229,8 +239,8 @@ export default function Library() {
                         <CardTitle className="truncate">{f.name}</CardTitle>
                         {isAdmin && (
                           <div className="mt-2 flex gap-2" onClick={e => e.stopPropagation()}>
-                            <button onClick={() => onRenameFile(f.path)} className="text-xs px-2 py-1 rounded bg-gray-200 hover:bg-gray-300">Rename</button>
-                            <button onClick={() => onDeleteFile(f.path)} className="text-xs px-2 py-1 rounded bg-red-500 text-white hover:opacity-90">Delete</button>
+                            <button onClick={() => onRenameFile(f.path)} className="text-xs px-2 py-1 rounded-md border border-border bg-white text-fg hover:opacity-90">Rename</button>
+                            <button onClick={() => onDeleteFile(f.path)} className="text-xs px-2 py-1 rounded-md bg-gradient-to-r from-rose-400 to-rose-500 text-white hover:opacity-90">Delete</button>
                           </div>
                         )}
                       </Card>
@@ -244,8 +254,8 @@ export default function Library() {
                         <CardTitle className="truncate">{f.name}</CardTitle>
                         {isAdmin && (
                           <div className="mt-2 flex gap-2" onClick={e => e.stopPropagation()}>
-                            <button onClick={() => onRenameFile(f.path)} className="text-xs px-2 py-1 rounded bg-gray-200 hover:bg-gray-300">Rename</button>
-                            <button onClick={() => onDeleteFile(f.path)} className="text-xs px-2 py-1 rounded bg-red-500 text-white hover:opacity-90">Delete</button>
+                            <button onClick={() => onRenameFile(f.path)} className="text-xs px-2 py-1 rounded-md border border-border bg-white text-fg hover:opacity-90">Rename</button>
+                            <button onClick={() => onDeleteFile(f.path)} className="text-xs px-2 py-1 rounded-md bg-gradient-to-r from-rose-400 to-rose-500 text-white hover:opacity-90">Delete</button>
                           </div>
                         )}
                       </Card>
@@ -258,8 +268,8 @@ export default function Library() {
                       <CardTitle className="truncate">{f.name}</CardTitle>
                       {isAdmin && (
                         <div className="mt-2 flex gap-2">
-                          <button onClick={(e) => { e.preventDefault(); onRenameFile(f.path) }} className="text-xs px-2 py-1 rounded bg-gray-200 hover:bg-gray-300">Rename</button>
-                          <button onClick={(e) => { e.preventDefault(); onDeleteFile(f.path) }} className="text-xs px-2 py-1 rounded bg-red-500 text-white hover:opacity-90">Delete</button>
+                          <button onClick={(e) => { e.preventDefault(); onRenameFile(f.path) }} className="text-xs px-2 py-1 rounded-md border border-border bg-white text-fg hover:opacity-90">Rename</button>
+                          <button onClick={(e) => { e.preventDefault(); onDeleteFile(f.path) }} className="text-xs px-2 py-1 rounded-md bg-gradient-to-r from-rose-400 to-rose-500 text-white hover:opacity-90">Delete</button>
                         </div>
                       )}
                     </Card>
@@ -268,10 +278,10 @@ export default function Library() {
               })}
               {isAdmin && !isRoot && (
                 <div
-                  onClick={onUploadClick}
-                  className="rounded-lg bg-gradient-to-r from-accent/70 to-sky-600/70 hover:from-accent/80 hover:to-sky-700/80 text-white shadow-card p-5 cursor-pointer flex items-center justify-center h-20 transition"
+                  onClick={!uploading ? onUploadClick : undefined}
+                  className={`rounded-lg bg-gradient-to-r from-accent/70 to-sky-600/70 hover:from-accent/80 hover:to-sky-700/80 text-white shadow-card p-5 ${uploading ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'} flex items-center justify-center h-20 transition`}
                 >
-                  <div className="text-sm font-medium">⬆ Upload file</div>
+                  <div className="text-sm font-medium">{uploading ? 'Uploading...' : '⬆ Upload file'}</div>
                 </div>
               )}
             </div>
@@ -283,15 +293,16 @@ export default function Library() {
       <Modal
         open={newFolderOpen}
         title="New folder"
-        onClose={() => setNewFolderOpen(false)}
+        onClose={() => { if (!newFolderLoading) setNewFolderOpen(false) }}
         footer={(
           <>
-            <button onClick={() => setNewFolderOpen(false)} className="h-9 px-4 rounded-md border border-border">Cancel</button>
+            <button onClick={() => setNewFolderOpen(false)} disabled={newFolderLoading} className="h-9 px-4 rounded-md border border-border disabled:opacity-60">Cancel</button>
             <button
               onClick={async () => {
                 const name = newFolderName.trim()
                 if (!name) return
                 try {
+                  setNewFolderLoading(true)
                   await createFolder(currentPath, name)
                   showToast('Folder created')
                   setNewFolderOpen(false)
@@ -299,11 +310,14 @@ export default function Library() {
                   refresh()
                 } catch (err) {
                   showToast(err.message || 'Failed to create folder', 'error')
+                } finally {
+                  setNewFolderLoading(false)
                 }
               }}
-              className="h-9 px-4 rounded-md bg-gradient-to-r from-emerald-500 to-teal-500 text-white"
+              disabled={newFolderLoading}
+              className="h-9 px-4 rounded-md bg-gradient-to-r from-emerald-500 to-teal-500 text-white disabled:opacity-60"
             >
-              Create
+              {newFolderLoading ? 'Creating...' : 'Create'}
             </button>
           </>
         )}
@@ -313,7 +327,8 @@ export default function Library() {
           type="text"
           value={newFolderName}
           onChange={e => setNewFolderName(e.target.value)}
-          className="w-full px-3 py-2 border border-border rounded focus-visible:ring-2 focus-visible:ring-accent"
+          disabled={newFolderLoading}
+          className="w-full px-3 py-2 border border-border rounded focus-visible:ring-2 focus-visible:ring-accent disabled:opacity-60"
           placeholder="e.g., Quarter 1"
           autoFocus
         />
@@ -322,31 +337,42 @@ export default function Library() {
       <Modal
         open={!!renameState}
         title={renameState?.kind === 'file' ? 'Rename file' : 'Rename folder'}
-        onClose={() => setRenameState(null)}
+        onClose={() => { if (!renameLoading) setRenameState(null) }}
         footer={(
           <>
-            <button onClick={() => setRenameState(null)} className="h-9 px-4 rounded-md border border-border">Cancel</button>
+            <button onClick={() => setRenameState(null)} disabled={renameLoading} className="h-9 px-4 rounded-md border border-border disabled:opacity-60">Cancel</button>
             <button
               onClick={async () => {
                 if (!renameState) return
                 const newName = (renameState.newName || '').trim()
                 if (!newName) return
                 try {
+                  setRenameLoading(true)
                   if (renameState.kind === 'folder') {
                     await renameFolder(renameState.path, newName)
                   } else {
-                    await renameFile(renameState.path, newName)
+                    // Preserve original extension; strip it if user included it
+                    const ext = renameState.ext || ''
+                    let base = newName
+                    if (ext && base.toLowerCase().endsWith(ext.toLowerCase())) {
+                      base = base.slice(0, -ext.length)
+                    }
+                    const finalName = base + ext
+                    await renameFile(renameState.path, finalName)
                   }
                   showToast('Renamed')
                   setRenameState(null)
                   refresh()
                 } catch (err) {
                   showToast(err.message || 'Failed to rename', 'error')
+                } finally {
+                  setRenameLoading(false)
                 }
               }}
-              className="h-9 px-4 rounded-md bg-gradient-to-r from-accent to-sky-500 text-white"
+              disabled={renameLoading}
+              className="h-9 px-4 rounded-md bg-gradient-to-r from-accent to-sky-500 text-white disabled:opacity-60"
             >
-              Save
+              {renameLoading ? 'Saving...' : 'Save'}
             </button>
           </>
         )}
@@ -356,26 +382,34 @@ export default function Library() {
           type="text"
           value={renameState?.newName || ''}
           onChange={e => setRenameState(s => ({ ...(s || {}), newName: e.target.value }))}
-          className="w-full px-3 py-2 border border-border rounded focus-visible:ring-2 focus-visible:ring-accent"
-          placeholder={renameState?.currentName || ''}
+          disabled={renameLoading}
+          className="w-full px-3 py-2 border border-border rounded focus-visible:ring-2 focus-visible:ring-accent disabled:opacity-60"
+          placeholder={renameState?.kind === 'file'
+            ? (() => {
+                const name = renameState?.currentName || ''
+                const dot = name.lastIndexOf('.')
+                return dot > 0 ? name.slice(0, dot) : name
+              })()
+            : (renameState?.currentName || '')}
           autoFocus
         />
         {renameState?.kind === 'file' && (
-          <div className="mt-2 text-xs text-fg-muted">Only .pdf or .mp4 filenames are allowed.</div>
+          <div className="mt-2 text-xs text-fg-muted">File extension will be preserved (e.g., .pdf or .mp4).</div>
         )}
       </Modal>
 
       <Modal
         open={!!confirmDelete}
         title="Confirm delete"
-        onClose={() => setConfirmDelete(null)}
+        onClose={() => { if (!deleteLoading) setConfirmDelete(null) }}
         footer={(
           <>
-            <button onClick={() => setConfirmDelete(null)} className="h-9 px-4 rounded-md border border-border">Cancel</button>
+            <button onClick={() => setConfirmDelete(null)} disabled={deleteLoading} className="h-9 px-4 rounded-md border border-border disabled:opacity-60">Cancel</button>
             <button
               onClick={async () => {
                 if (!confirmDelete) return
                 try {
+                  setDeleteLoading(true)
                   if (confirmDelete.kind === 'folder') {
                     await deleteFolder(confirmDelete.path)
                   } else {
@@ -386,11 +420,14 @@ export default function Library() {
                   refresh()
                 } catch (err) {
                   showToast(err.message || 'Failed to delete', 'error')
+                } finally {
+                  setDeleteLoading(false)
                 }
               }}
-              className="h-9 px-4 rounded-md bg-red-600 text-white"
+              disabled={deleteLoading}
+              className="h-9 px-4 rounded-md bg-gradient-to-r from-rose-400 to-rose-500 text-white disabled:opacity-60"
             >
-              Delete
+              {deleteLoading ? 'Deleting...' : 'Delete'}
             </button>
           </>
         )}

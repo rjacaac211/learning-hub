@@ -16,7 +16,7 @@ export default function TopNav() {
       <div className="container h-14 px-6 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 rounded-md bg-accent" />
-          <Link to="/" className="text-sm font-semibold tracking-tight">Learning Hub</Link>
+          <Link to="/" className="text-sm font-semibold tracking-tight">The Solar Archive</Link>
         </div>
         <div className="flex items-center gap-3 ml-auto">
           {role === 'admin' && hasToken ? (

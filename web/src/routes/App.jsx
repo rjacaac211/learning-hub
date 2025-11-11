@@ -6,7 +6,7 @@ export default function App() {
   const location = useLocation()
   useEffect(() => {
     if (location.pathname === '/') {
-      document.title = 'Learning Hub'
+      document.title = 'The Solar Archive'
     }
   }, [location])
 

@@ -9,7 +9,7 @@ export default function Landing() {
   const [adminPassword, setAdminPassword] = useState('')
   const [adminLoading, setAdminLoading] = useState(false)
   const [adminError, setAdminError] = useState('')
-  useEffect(() => { document.title = 'Learning Hub' }, [])
+  useEffect(() => { document.title = 'The Solar Archive' }, [])
   async function handleStudent() {
     try {
       setLoading(true)
@@ -47,7 +47,7 @@ export default function Landing() {
       </div>
       <div className="relative text-center px-4">
         <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight bg-gradient-to-r from-accent to-sky-500 bg-clip-text text-transparent">
-          Learning Hub
+          <span className="whitespace-pre-line">{`The Solar Archive:\n\nKnowledge Powered\n\nby the Sun`}</span>
         </h1>
         <p className="mt-4 text-fg-muted max-w-xl mx-auto">Choose your role to continue.</p>
         {!adminMode ? (
