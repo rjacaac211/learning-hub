@@ -11,6 +11,8 @@ export default function Landing() {
   const [adminError, setAdminError] = useState('')
   useEffect(() => { 
     document.title = 'The Solar Archive'
+    // Always reset scroll to top when entering landing/sign-in
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
     // Prevent scrolling on landing page
     document.documentElement.style.overflow = 'hidden'
     document.body.style.overflow = 'hidden'
