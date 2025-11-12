@@ -152,7 +152,7 @@ export default function Library() {
   }
 
   return (
-    <div className="relative">
+    <div className="relative" aria-busy={uploading}>
       {/* page-specific soft blobs */}
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute top-10 right-10 w-[360px] h-[360px] bg-gradient-to-br from-sky-400/15 to-purple-500/15 blur-3xl rounded-full" />
@@ -239,10 +239,11 @@ export default function Library() {
           {isAdmin && !isRoot && (
             <button
               onClick={onUploadClick}
-              className="tap-target md:h-10 rounded-md bg-gradient-to-r from-accent/70 to-sky-500/70 text-white hover:from-accent/80 hover:to-sky-600/80 transition flex items-center justify-center gap-2"
+              disabled={uploading}
+              className="tap-target md:h-10 rounded-md bg-gradient-to-r from-accent/70 to-sky-500/70 text-white hover:from-accent/80 hover:to-sky-600/80 transition flex items-center justify-center gap-2 disabled:opacity-60"
             >
-              <ArrowUpIcon className="w-5 h-5" />
-              <span>Upload file</span>
+              {!uploading && <ArrowUpIcon className="w-5 h-5" />}
+              <span>{uploading ? 'Uploading...' : 'Upload file'}</span>
             </button>
           )}
         </div>
