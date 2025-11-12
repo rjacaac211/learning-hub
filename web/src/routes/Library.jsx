@@ -153,6 +153,7 @@ export default function Library() {
 
   return (
     <div className="relative" aria-busy={uploading}>
+      <div inert={uploading ? '' : undefined} aria-hidden={uploading ? true : undefined}>
       {/* page-specific soft blobs */}
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute top-10 right-10 w-[360px] h-[360px] bg-gradient-to-br from-sky-400/15 to-purple-500/15 blur-3xl rounded-full" />
@@ -480,6 +481,16 @@ export default function Library() {
         </div>
         {confirmDelete?.name && <div className="mt-2 text-sm font-medium">{confirmDelete.name}</div>}
       </Modal>
+      </div>
+      {uploading && (
+        <div className="fixed inset-0 z-50 bg-white/50 backdrop-blur-sm cursor-wait" role="status" aria-live="polite">
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="px-4 py-3 rounded-md bg-white/90 shadow-card border border-border text-fg">
+              Uploading…
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
