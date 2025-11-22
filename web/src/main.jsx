@@ -8,6 +8,7 @@ import Signin from './routes/Signin'
 import Library from './routes/Library'
 import Pdf from './routes/Pdf'
 import Video from './routes/Video'
+import Image from './routes/Image'
 
 const router = createBrowserRouter([
   {
@@ -18,7 +19,8 @@ const router = createBrowserRouter([
       { path: 'signin', element: <Signin /> },
       { path: 'library/*', element: <Library /> },
       { path: 'pdf/*', element: <Pdf /> },
-      { path: 'video/*', element: <Video /> }
+      { path: 'video/*', element: <Video /> },
+      { path: 'image/*', element: <Image /> }
     ]
   }
 ])

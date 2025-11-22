@@ -284,8 +284,14 @@ export default function Library() {
             <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredFiles.map(f => {
                 const mime = String(f.mime || '').toLowerCase()
+              const nameLower = f.name.toLowerCase()
                 const isPdf = mime.includes('pdf')
                 const isVideo = mime.startsWith('video/')
+              const isImage =
+                mime.startsWith('image/') ||
+                nameLower.endsWith('.png') ||
+                nameLower.endsWith('.jpg') ||
+                nameLower.endsWith('.jpeg')
                 if (isPdf) {
                   return (
                     <div key={f.path} onClick={() => navigate(`/pdf${f.path}`)}>
@@ -304,6 +310,21 @@ export default function Library() {
                 if (isVideo) {
                   return (
                     <div key={f.path} onClick={() => navigate(`/video${f.path}`)}>
+                      <Card interactive className="cursor-pointer">
+                        <CardTitle className="truncate">{f.name}</CardTitle>
+                        {isAdmin && (
+                          <div className="mt-2 flex gap-2" onClick={e => e.stopPropagation()}>
+                            <button onClick={() => onRenameFile(f.path)} className="text-sm px-4 py-2 md:text-xs md:px-2 md:py-1 rounded-md border border-border bg-white text-fg hover:opacity-90 min-h-[48px] md:min-h-0">Rename</button>
+                            <button onClick={() => onDeleteFile(f.path)} className="text-sm px-4 py-2 md:text-xs md:px-2 md:py-1 rounded-md bg-gradient-to-r from-rose-400 to-rose-500 text-white hover:opacity-90 min-h-[48px] md:min-h-0">Delete</button>
+                          </div>
+                        )}
+                      </Card>
+                    </div>
+                  )
+                }
+                if (isImage) {
+                  return (
+                    <div key={f.path} onClick={() => navigate(`/image${f.path}`)}>
                       <Card interactive className="cursor-pointer">
                         <CardTitle className="truncate">{f.name}</CardTitle>
                         {isAdmin && (
