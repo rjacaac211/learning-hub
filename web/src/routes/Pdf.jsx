@@ -36,6 +36,12 @@ export default function Pdf() {
         <a href={src} target="_blank" rel="noreferrer" className="text-accent hover:text-accent-hover">
           Open in new tab
         </a>
+        {' '}
+        <span className="text-fg-muted">·</span>
+        {' '}
+        <a href={src} download className="text-accent hover:text-accent-hover">
+          Download
+        </a>
       </div>
     </section>
   )
