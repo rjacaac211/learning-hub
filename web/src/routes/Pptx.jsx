@@ -23,12 +23,17 @@ export default function Pptx() {
         <div className="text-sm text-fg-muted truncate">{name}</div>
       </div>
 
-      <div className="rounded-lg border border-border bg-white shadow-card overflow-hidden">
-        <iframe
-          title={name}
-          src={'/files/' + encodeURI(splat)}
-          className="w-full h-[calc(100vh-280px)] md:h-[calc(100vh-200px)] bg-black/5"
-        />
+      <div className="rounded-lg border border-border bg-white shadow-card p-6 flex flex-col gap-3 text-sm text-fg">
+        <p>This presentation will be downloaded to your device.</p>
+        <div>
+          <a
+            href={src}
+            download
+            className="inline-flex items-center px-4 py-2 rounded-md bg-gradient-to-r from-accent to-sky-500 text-white text-sm hover:opacity-90"
+          >
+            Download presentation
+          </a>
+        </div>
       </div>
     </section>
   )
