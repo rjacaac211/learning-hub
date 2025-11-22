@@ -429,13 +429,38 @@ const upload = multer({
 
 function isAllowedFileByExt(filename) {
   const lower = String(filename || '').toLowerCase();
-  return lower.endsWith('.pdf') || lower.endsWith('.mp4');
+  return (
+    lower.endsWith('.pdf') ||
+    lower.endsWith('.mp4') ||
+    lower.endsWith('.pptx') ||
+    lower.endsWith('.png') ||
+    lower.endsWith('.jpg') ||
+    lower.endsWith('.jpeg')
+  );
 }
 
 function isAllowedMime(mimetype, filename) {
   const lower = String(mimetype || '').toLowerCase();
-  if (filename.toLowerCase().endsWith('.pdf')) return lower === 'application/pdf' || lower === 'application/octet-stream';
-  if (filename.toLowerCase().endsWith('.mp4')) return lower.startsWith('video/') || lower === 'application/octet-stream';
+  const fname = String(filename || '').toLowerCase();
+
+  if (fname.endsWith('.pdf')) {
+    return lower === 'application/pdf' || lower === 'application/octet-stream';
+  }
+  if (fname.endsWith('.mp4')) {
+    return lower.startsWith('video/') || lower === 'application/octet-stream';
+  }
+  if (fname.endsWith('.pptx')) {
+    return (
+      lower === 'application/vnd.openxmlformats-officedocument.presentationml.presentation' ||
+      lower === 'application/octet-stream'
+    );
+  }
+  if (fname.endsWith('.png')) {
+    return lower === 'image/png' || lower === 'application/octet-stream';
+  }
+  if (fname.endsWith('.jpg') || fname.endsWith('.jpeg')) {
+    return lower === 'image/jpeg' || lower === 'application/octet-stream';
+  }
   return false;
 }
 
@@ -495,7 +520,7 @@ app.post('/api/admin/files/upload', requireAdmin, upload.single('file'), async (
   const original = file.originalname;
   if (!isAllowedFileByExt(original) || !isAllowedMime(file.mimetype, original)) {
     try { await fs.promises.unlink(file.path); } catch {}
-    return res.status(415).json({ error: 'Unsupported file type (only PDF and MP4 allowed)' });
+    return res.status(415).json({ error: 'Unsupported file type (only PDF, MP4, PPTX, PNG, JPG, JPEG allowed)' });
   }
 
   const safeName = path.basename(original);
@@ -520,7 +545,9 @@ app.patch('/api/admin/files/rename', requireAdmin, async (req, res) => {
   const newName = String(req.body?.newName || '');
   if (!filePath) return res.status(400).json({ error: 'Missing path' });
   if (!isValidName(newName)) return res.status(400).json({ error: 'Invalid file name' });
-  if (!isAllowedFileByExt(newName)) return res.status(415).json({ error: 'Unsupported file type' });
+  if (!isAllowedFileByExt(newName)) {
+    return res.status(415).json({ error: 'Unsupported file type (only PDF, MP4, PPTX, PNG, JPG, JPEG allowed)' });
+  }
   if (isUnderProtected(filePath)) return res.status(403).json({ error: 'Path is read-only' });
 
   const abs = safeResolveContent(filePath);

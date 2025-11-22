@@ -64,8 +64,17 @@ export default function Library() {
     const q = query.trim().toLowerCase()
     const allowed = nodes.files.filter(f => {
       const mime = String(f.mime || '').toLowerCase()
-      if (f.name.toLowerCase().startsWith('readme')) return false
-      return mime.includes('pdf') || mime.startsWith('video/')
+      const nameLower = f.name.toLowerCase()
+      if (nameLower.startsWith('readme')) return false
+      const isKnownExt =
+        nameLower.endsWith('.pdf') ||
+        nameLower.endsWith('.mp4') ||
+        nameLower.endsWith('.pptx') ||
+        nameLower.endsWith('.png') ||
+        nameLower.endsWith('.jpg') ||
+        nameLower.endsWith('.jpeg')
+      const isPdfOrVideoMime = mime.includes('pdf') || mime.startsWith('video/')
+      return isKnownExt || isPdfOrVideoMime
     })
     if (!q) return allowed
     return allowed.filter(f => f.name.toLowerCase().includes(q))
@@ -215,7 +224,13 @@ export default function Library() {
                 <PlusIcon className="w-4 h-4 md:w-3.5 md:h-3.5 shrink-0" />
                 <span className="whitespace-nowrap">New Folder</span>
               </button>
-              <input ref={fileInputRef} type="file" accept=".pdf,.mp4" onChange={onFileChosen} className="hidden" />
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".pdf,.mp4,.pptx,.png,.jpg,.jpeg"
+                onChange={onFileChosen}
+                className="hidden"
+              />
             </div>
           )}
         </div>
@@ -235,7 +250,7 @@ export default function Library() {
         <div className="mt-10 flex flex-col items-center justify-center gap-4">
           <EmptyState
             title="This folder is empty"
-            subtitle={isAdmin ? 'Upload a PDF or MP4 to get started.' : 'No content here yet.'}
+            subtitle={isAdmin ? 'Upload a PDF, PPTX, PNG, JPG, JPEG, or MP4 to get started.' : 'No content here yet.'}
           />
           {isAdmin && !isRoot && (
             <button
@@ -436,7 +451,9 @@ export default function Library() {
           autoFocus
         />
         {renameState?.kind === 'file' && (
-          <div className="mt-2 text-xs text-fg-muted">File extension will be preserved (e.g., .pdf or .mp4).</div>
+          <div className="mt-2 text-xs text-fg-muted">
+            File extension will be preserved (e.g., .pdf, .pptx, .png, .jpg, .jpeg, or .mp4).
+          </div>
         )}
       </Modal>
 
