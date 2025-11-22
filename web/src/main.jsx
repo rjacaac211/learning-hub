@@ -9,6 +9,7 @@ import Library from './routes/Library'
 import Pdf from './routes/Pdf'
 import Video from './routes/Video'
 import Image from './routes/Image'
+import Pptx from './routes/Pptx'
 
 const router = createBrowserRouter([
   {
@@ -20,7 +21,8 @@ const router = createBrowserRouter([
       { path: 'library/*', element: <Library /> },
       { path: 'pdf/*', element: <Pdf /> },
       { path: 'video/*', element: <Video /> },
-      { path: 'image/*', element: <Image /> }
+      { path: 'image/*', element: <Image /> },
+      { path: 'pptx/*', element: <Pptx /> }
     ]
   }
 ])

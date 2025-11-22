@@ -292,9 +292,25 @@ export default function Library() {
                 nameLower.endsWith('.png') ||
                 nameLower.endsWith('.jpg') ||
                 nameLower.endsWith('.jpeg')
+              const isPptx = nameLower.endsWith('.pptx')
                 if (isPdf) {
                   return (
                     <div key={f.path} onClick={() => navigate(`/pdf${f.path}`)}>
+                      <Card interactive className="cursor-pointer">
+                        <CardTitle className="truncate">{f.name}</CardTitle>
+                        {isAdmin && (
+                          <div className="mt-2 flex gap-2" onClick={e => e.stopPropagation()}>
+                            <button onClick={() => onRenameFile(f.path)} className="text-sm px-4 py-2 md:text-xs md:px-2 md:py-1 rounded-md border border-border bg-white text-fg hover:opacity-90 min-h-[48px] md:min-h-0">Rename</button>
+                            <button onClick={() => onDeleteFile(f.path)} className="text-sm px-4 py-2 md:text-xs md:px-2 md:py-1 rounded-md bg-gradient-to-r from-rose-400 to-rose-500 text-white hover:opacity-90 min-h-[48px] md:min-h-0">Delete</button>
+                          </div>
+                        )}
+                      </Card>
+                    </div>
+                  )
+                }
+                if (isPptx) {
+                  return (
+                    <div key={f.path} onClick={() => navigate(`/pptx${f.path}`)}>
                       <Card interactive className="cursor-pointer">
                         <CardTitle className="truncate">{f.name}</CardTitle>
                         {isAdmin && (
