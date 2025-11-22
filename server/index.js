@@ -139,6 +139,20 @@ function safeResolveContent(posixPath) {
   return abs;
 }
 
+// Read-only/protected folders (POSIX-style, case-insensitive compare)
+const PROTECTED_POSIX_PATHS_LOWER = ['/others', '/others/english dictionary'];
+function normalizePosixLower(p) {
+  if (typeof p !== 'string' || !p) return '';
+  const cleaned = p.replace(/\\/g, '/').replace(/^\/+/, '');
+  const noTrail = cleaned.replace(/\/+$/, '');
+  return noTrail ? '/' + noTrail.toLowerCase() : '/';
+}
+function isUnderProtected(posixPath) {
+  const p = normalizePosixLower(posixPath);
+  if (!p || p === '/') return false;
+  return PROTECTED_POSIX_PATHS_LOWER.some((base) => p === base || p.startsWith(base + '/'));
+}
+
 // Nodes endpoint: list one level of directories and files under given path (default root)
 app.get('/api/nodes', async (req, res) => {
   const qPath = typeof req.query.path === 'string' ? req.query.path : '/';
@@ -247,6 +261,7 @@ app.post('/api/admin/folders', requireAdmin, async (req, res) => {
   const name = String(req.body?.name || '');
 
   if (!isValidName(name)) return res.status(400).json({ error: 'Invalid folder name' });
+  if (isUnderProtected(parentPath)) return res.status(403).json({ error: 'Path is read-only' });
 
   const parentAbs = safeResolveContent(parentPath);
   if (!parentAbs) return res.status(400).json({ error: 'Invalid path' });
@@ -319,6 +334,7 @@ app.patch('/api/admin/folders/rename', requireAdmin, async (req, res) => {
   const newName = String(req.body?.newName || '');
   if (!folderPath) return res.status(400).json({ error: 'Missing path' });
   if (!isValidName(newName)) return res.status(400).json({ error: 'Invalid folder name' });
+  if (isUnderProtected(folderPath)) return res.status(403).json({ error: 'Path is read-only' });
 
   const abs = safeResolveContent(folderPath);
   if (!abs) return res.status(400).json({ error: 'Invalid path' });
@@ -369,6 +385,7 @@ app.patch('/api/admin/folders/rename', requireAdmin, async (req, res) => {
 app.delete('/api/admin/folders', requireAdmin, async (req, res) => {
   const folderPath = typeof req.body?.path === 'string' ? req.body.path : '';
   if (!folderPath) return res.status(400).json({ error: 'Missing path' });
+  if (isUnderProtected(folderPath)) return res.status(403).json({ error: 'Path is read-only' });
 
   const abs = safeResolveContent(folderPath);
   if (!abs) return res.status(400).json({ error: 'Invalid path' });
@@ -459,6 +476,7 @@ async function moveFileSafe(src, dest) {
 app.post('/api/admin/files/upload', requireAdmin, upload.single('file'), async (req, res) => {
   const destPath = typeof req.body?.path === 'string' ? req.body.path : '';
   if (!destPath) return res.status(400).json({ error: 'Missing path' });
+  if (isUnderProtected(destPath)) return res.status(403).json({ error: 'Path is read-only' });
 
   const dirAbs = safeResolveContent(destPath);
   if (!dirAbs) return res.status(400).json({ error: 'Invalid path' });
@@ -503,6 +521,7 @@ app.patch('/api/admin/files/rename', requireAdmin, async (req, res) => {
   if (!filePath) return res.status(400).json({ error: 'Missing path' });
   if (!isValidName(newName)) return res.status(400).json({ error: 'Invalid file name' });
   if (!isAllowedFileByExt(newName)) return res.status(415).json({ error: 'Unsupported file type' });
+  if (isUnderProtected(filePath)) return res.status(403).json({ error: 'Path is read-only' });
 
   const abs = safeResolveContent(filePath);
   if (!abs) return res.status(400).json({ error: 'Invalid path' });
@@ -538,6 +557,7 @@ app.patch('/api/admin/files/rename', requireAdmin, async (req, res) => {
 app.delete('/api/admin/files', requireAdmin, async (req, res) => {
   const filePath = typeof req.body?.path === 'string' ? req.body.path : '';
   if (!filePath) return res.status(400).json({ error: 'Missing path' });
+  if (isUnderProtected(filePath)) return res.status(403).json({ error: 'Path is read-only' });
 
   const abs = safeResolveContent(filePath);
   if (!abs) return res.status(400).json({ error: 'Invalid path' });
