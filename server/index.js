@@ -435,7 +435,9 @@ function isAllowedFileByExt(filename) {
     lower.endsWith('.pptx') ||
     lower.endsWith('.png') ||
     lower.endsWith('.jpg') ||
-    lower.endsWith('.jpeg')
+    lower.endsWith('.jpeg') ||
+    lower.endsWith('.doc') ||
+    lower.endsWith('.docx')
   );
 }
 
@@ -460,6 +462,15 @@ function isAllowedMime(mimetype, filename) {
   }
   if (fname.endsWith('.jpg') || fname.endsWith('.jpeg')) {
     return lower === 'image/jpeg' || lower === 'application/octet-stream';
+  }
+  if (fname.endsWith('.docx')) {
+    return (
+      lower === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
+      lower === 'application/octet-stream'
+    );
+  }
+  if (fname.endsWith('.doc')) {
+    return lower === 'application/msword' || lower === 'application/octet-stream';
   }
   return false;
 }
@@ -520,7 +531,7 @@ app.post('/api/admin/files/upload', requireAdmin, upload.single('file'), async (
   const original = file.originalname;
   if (!isAllowedFileByExt(original) || !isAllowedMime(file.mimetype, original)) {
     try { await fs.promises.unlink(file.path); } catch {}
-    return res.status(415).json({ error: 'Unsupported file type (only PDF, MP4, PPTX, PNG, JPG, JPEG allowed)' });
+    return res.status(415).json({ error: 'Unsupported file type (only PDF, MP4, PPTX, PNG, JPG, JPEG, DOC, DOCX allowed)' });
   }
 
   const safeName = path.basename(original);
@@ -546,7 +557,7 @@ app.patch('/api/admin/files/rename', requireAdmin, async (req, res) => {
   if (!filePath) return res.status(400).json({ error: 'Missing path' });
   if (!isValidName(newName)) return res.status(400).json({ error: 'Invalid file name' });
   if (!isAllowedFileByExt(newName)) {
-    return res.status(415).json({ error: 'Unsupported file type (only PDF, MP4, PPTX, PNG, JPG, JPEG allowed)' });
+    return res.status(415).json({ error: 'Unsupported file type (only PDF, MP4, PPTX, PNG, JPG, JPEG, DOC, DOCX allowed)' });
   }
   if (isUnderProtected(filePath)) return res.status(403).json({ error: 'Path is read-only' });
 

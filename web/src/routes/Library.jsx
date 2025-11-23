@@ -72,7 +72,9 @@ export default function Library() {
         nameLower.endsWith('.pptx') ||
         nameLower.endsWith('.png') ||
         nameLower.endsWith('.jpg') ||
-        nameLower.endsWith('.jpeg')
+        nameLower.endsWith('.jpeg') ||
+        nameLower.endsWith('.doc') ||
+        nameLower.endsWith('.docx')
       const isPdfOrVideoMime = mime.includes('pdf') || mime.startsWith('video/')
       return isKnownExt || isPdfOrVideoMime
     })
@@ -227,7 +229,7 @@ export default function Library() {
               <input
                 ref={fileInputRef}
                 type="file"
-                accept=".pdf,.mp4,.pptx,.png,.jpg,.jpeg"
+                accept=".pdf,.mp4,.pptx,.png,.jpg,.jpeg,.doc,.docx"
                 onChange={onFileChosen}
                 className="hidden"
               />
@@ -250,7 +252,7 @@ export default function Library() {
         <div className="mt-10 flex flex-col items-center justify-center gap-4">
           <EmptyState
             title="This folder is empty"
-            subtitle={isAdmin ? 'Upload a PDF, PPTX, PNG, JPG, JPEG, or MP4 to get started.' : 'No content here yet.'}
+            subtitle={isAdmin ? 'Upload a PDF, PPTX, PNG, JPG, JPEG, DOC, DOCX, or MP4 to get started.' : 'No content here yet.'}
           />
           {isAdmin && !isRoot && (
             <button
@@ -293,6 +295,7 @@ export default function Library() {
                 nameLower.endsWith('.jpg') ||
                 nameLower.endsWith('.jpeg')
               const isPptx = nameLower.endsWith('.pptx')
+              const isDoc = nameLower.endsWith('.doc') || nameLower.endsWith('.docx')
                 if (isPdf) {
                   return (
                     <div key={f.path} onClick={() => navigate(`/pdf${f.path}`)}>
@@ -311,6 +314,21 @@ export default function Library() {
                 if (isPptx) {
                   return (
                     <div key={f.path} onClick={() => navigate(`/pptx${f.path}`)}>
+                      <Card interactive className="cursor-pointer">
+                        <CardTitle className="truncate">{f.name}</CardTitle>
+                        {isAdmin && (
+                          <div className="mt-2 flex gap-2" onClick={e => e.stopPropagation()}>
+                            <button onClick={() => onRenameFile(f.path)} className="text-sm px-4 py-2 md:text-xs md:px-2 md:py-1 rounded-md border border-border bg-white text-fg hover:opacity-90 min-h-[48px] md:min-h-0">Rename</button>
+                            <button onClick={() => onDeleteFile(f.path)} className="text-sm px-4 py-2 md:text-xs md:px-2 md:py-1 rounded-md bg-gradient-to-r from-rose-400 to-rose-500 text-white hover:opacity-90 min-h-[48px] md:min-h-0">Delete</button>
+                          </div>
+                        )}
+                      </Card>
+                    </div>
+                  )
+                }
+                if (isDoc) {
+                  return (
+                    <div key={f.path} onClick={() => navigate(`/doc${f.path}`)}>
                       <Card interactive className="cursor-pointer">
                         <CardTitle className="truncate">{f.name}</CardTitle>
                         {isAdmin && (
@@ -489,7 +507,7 @@ export default function Library() {
         />
         {renameState?.kind === 'file' && (
           <div className="mt-2 text-xs text-fg-muted">
-            File extension will be preserved (e.g., .pdf, .pptx, .png, .jpg, .jpeg, or .mp4).
+            File extension will be preserved (e.g., .pdf, .pptx, .png, .jpg, .jpeg, .doc, .docx, or .mp4).
           </div>
         )}
       </Modal>
